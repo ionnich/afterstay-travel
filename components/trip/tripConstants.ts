@@ -1,11 +1,19 @@
 import type { useTheme } from '@/constants/ThemeContext';
-import type { Flight } from '@/lib/types';
+import type { Flight, PackingItem, Trip } from '@/lib/types';
 import { formatDatePHT, formatTimePHT } from '@/lib/utils';
 import { colors as themeColors } from '@/constants/theme';
 
 // ---------- TYPES ----------
 
 export type ThemeColors = ReturnType<typeof useTheme>['colors'];
+
+export const TAB_KEYS = [
+  'overview',
+  'summary',
+  'guide',
+  'essentials',
+] as const;
+export type TabKey = (typeof TAB_KEYS)[number];
 
 export interface FlightDisplayData {
   dir: string;
@@ -64,5 +72,43 @@ export function mapFlightToDisplay(f: Flight): FlightDisplayData {
     dur: '',
     bags: f.baggage ? [{ who: f.passenger ?? '', bag: f.baggage }] : [],
     status: 'Confirmed',
+  };
+}
+
+export interface PackingGroup {
+  [category: string]: { t: string; by: string; d: boolean; id: string }[];
+}
+
+export function groupPackingItems(items: PackingItem[]): PackingGroup {
+  const groups: PackingGroup = {};
+  for (const item of items) {
+    const cat = item.category || 'Other';
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push({ t: item.item, by: item.owner ?? '', d: item.packed, id: item.id });
+  }
+  return groups;
+}
+
+const COUNTRY_FLAGS: Record<string, string> = {
+  JP: '\u{1F1EF}\u{1F1F5}',
+  VN: '\u{1F1FB}\u{1F1F3}',
+  PH: '\u{1F1F5}\u{1F1ED}',
+  TH: '\u{1F1F9}\u{1F1ED}',
+  SG: '\u{1F1F8}\u{1F1EC}',
+  US: '\u{1F1FA}\u{1F1F8}',
+  KR: '\u{1F1F0}\u{1F1F7}',
+  ID: '\u{1F1EE}\u{1F1E9}',
+};
+
+export function mapTripToPastDisplay(t: Trip): PastTripDisplay {
+  return {
+    flag: COUNTRY_FLAGS[t.countryCode ?? ''] ?? '\u{1F30D}',
+    dest: t.destination ?? t.name,
+    country: t.country ?? '',
+    dates: `${formatDatePHT(t.startDate)} \u2013 ${formatDatePHT(t.endDate)}`,
+    nights: t.totalNights ?? t.nights ?? 0,
+    spent: t.totalSpent ?? 0,
+    miles: 0,
+    rating: 0,
   };
 }

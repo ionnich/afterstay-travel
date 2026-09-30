@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -14,23 +12,20 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
-import { Compass, MapPin, Plane, Users } from 'lucide-react-native';
+import { Compass } from 'lucide-react-native';
 
 import AfterStayLoader from '@/components/AfterStayLoader';
 import { AnticipationHero } from '@/components/home/AnticipationHero';
 import { HomeMomentsPreview } from '@/components/home/HomeMomentsPreview';
-import { ArrivedCard } from '@/components/home/ArrivedCard';
-import { CountdownCard } from '@/components/home/CountdownCard';
 import { FlightCard } from '@/components/home/FlightCard';
-import { FlightProgressCard } from '@/components/home/FlightProgressCard';
-import { TripActiveCard } from '@/components/home/TripActiveCard';
+import { PhaseCard, TripPhase } from '@/components/home/PhaseCard';
+import { CollapsibleSection, SectionHeader } from '@/components/home/Sections';
 import EmptyState from '@/components/shared/EmptyState';
 import { FloatingActionButton } from '@/components/shared/FloatingActionButton';
-import LivingPostcardLoader from '@/components/loader/LivingPostcardLoader';
 import ProfileRow from '@/components/home/ProfileRow';
 import { QuickAccessGrid } from '@/components/home/QuickAccessGrid';
 import { WeatherForecastCard } from '@/components/home/WeatherForecastCard';
-import { useTheme } from '@/constants/ThemeContext';
+import { useTheme, ThemeColors } from '@/constants/ThemeContext';
 import { spacing } from '@/constants/theme';
 import { useTabBarVisibility } from '@/app/(tabs)/_layout';
 import { cacheGet, cacheSet } from '@/lib/cache';
@@ -42,99 +37,10 @@ import {
   getMoments,
 } from '@/lib/api';
 import type { Flight, GroupMember, Moment, Trip } from '@/lib/types';
-import { formatDatePHT, formatTimePHT, safeParse, MS_PER_DAY } from '@/lib/utils';
-
-type TripPhase = 'planning' | 'upcoming' | 'inflight' | 'arrived' | 'active';
+import { formatDatePHT, safeParse, MS_PER_DAY } from '@/lib/utils';
 
 // No fallback photos — hero shows gradient when trip has no hotel photos
 const FALLBACK_PHOTOS: string[] = [];
-
-/* ── Section header matching prototype's GroupHeader ── */
-function SectionHeader({
-  kicker,
-  title,
-  action,
-}: {
-  kicker: string;
-  title: string;
-  action?: React.ReactNode;
-}) {
-  const { colors } = useTheme();
-  return (
-    <View style={sectionHeaderStyles.container}>
-      <View>
-        <Text style={[sectionHeaderStyles.kicker, { color: colors.text3 }]}>
-          {kicker}
-        </Text>
-        <Text style={[sectionHeaderStyles.title, { color: colors.text }]}>
-          {title}
-        </Text>
-      </View>
-      {action}
-    </View>
-  );
-}
-
-const sectionHeaderStyles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    paddingHorizontal: 20,
-    paddingTop: 22,
-    paddingBottom: 10,
-  },
-  kicker: {
-    fontSize: 10,
-    fontWeight: '600',
-    letterSpacing: 0.16 * 10,
-    textTransform: 'uppercase',
-    marginBottom: 3,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '500',
-    letterSpacing: -0.6,
-  },
-});
-
-function CollapsibleSection({
-  kicker,
-  title,
-  defaultOpen = true,
-  children,
-}: {
-  kicker: string;
-  title: string;
-  defaultOpen?: boolean;
-  children: React.ReactNode;
-}) {
-  const { colors } = useTheme();
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <View>
-      <Pressable
-        onPress={() => setOpen((o) => !o)}
-        style={sectionHeaderStyles.container}
-        accessibilityRole="button"
-        accessibilityLabel={`${title}, ${open ? 'collapse' : 'expand'}`}
-      >
-        <View>
-          <Text style={[sectionHeaderStyles.kicker, { color: colors.text3 }]}>
-            {kicker}
-          </Text>
-          <Text style={[sectionHeaderStyles.title, { color: colors.text }]}>
-            {title}
-          </Text>
-        </View>
-        <Text style={{ color: colors.text3, fontSize: 12, fontWeight: '600' }}>
-          {open ? 'Hide' : 'Show'}
-        </Text>
-      </Pressable>
-      {open && children}
-    </View>
-  );
-}
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -459,99 +365,18 @@ export default function HomeScreen() {
             entering={FadeIn.duration(350)}
             exiting={FadeOut.duration(200)}
           >
-            {phase === 'inflight' ? (
-              (() => {
-                const outbound = flights.find((f) => f.direction === 'Outbound');
-                return (
-                  <FlightProgressCard
-                    onLanded={landFlight}
-                    fromCode={outbound?.from}
-                    fromCity={outbound?.from === 'MNL' ? 'Manila' : outbound?.from}
-                    toCode={outbound?.to}
-                    toCity={outbound?.to === 'MPH' ? 'Caticlan' : outbound?.to}
-                    etaLabel={outbound?.arriveTime ? formatTimePHT(outbound.arriveTime) : undefined}
-                    departIso={outbound?.departTime}
-                    arriveIso={outbound?.arriveTime}
-                  />
-                );
-              })()
-            ) : phase === 'arrived' ? (
-              <ArrivedCard
-                destination={trip.destination}
-                hotelName={trip.accommodation}
-                onStart={goExplore}
-              />
-            ) : phase === 'active' ? (
-              <TripActiveCard
-                trip={trip}
-                dayOfTrip={
-                  countdown.status === 'active'
-                    ? countdown.dayNumber ?? 1
-                    : 1
-                }
-                totalDays={countdown.totalDays}
-                daysLeft={
-                  countdown.totalDays -
-                  (countdown.status === 'active'
-                    ? countdown.dayNumber ?? 1
-                    : 0)
-                }
-                budgetStatus={(() => {
-                  const b = trip.budgetLimit ?? 0;
-                  if (b <= 0) return 'cruising';
-                  const pctSpent = totalSpent / b;
-                  const pctTime = (countdown.status === 'active' ? (countdown.dayNumber ?? 1) : 1) / countdown.totalDays;
-                  if (pctSpent > 1) return 'over';
-                  if (pctSpent > pctTime * 1.15) return 'low';
-                  return 'cruising';
-                })()}
-                spent={totalSpent}
-                budget={trip.budgetLimit ?? 0}
-                todaySpent={todaySpent}
-                todayCount={todayCount}
-              />
-            ) : phase === 'planning' ? (
-              <View style={styles.planningCard}>
-                <Text style={styles.planningEmoji}>🗺️</Text>
-                <Text style={styles.planningTitle}>Planning your trip</Text>
-                <Text style={styles.planningSubtitle}>
-                  {trip.destination} · {formatDatePHT(trip.startDate)} – {formatDatePHT(trip.endDate)}
-                </Text>
-                <View style={styles.planningNudges}>
-                  <Pressable style={styles.nudgeRow} onPress={() => router.push('/(tabs)/trip')}>
-                    <Plane size={16} color={colors.accent} />
-                    <Text style={styles.nudgeText}>Add your flights</Text>
-                  </Pressable>
-                  <Pressable style={styles.nudgeRow} onPress={() => router.push('/invite')}>
-                    <Users size={16} color={colors.accent} />
-                    <Text style={styles.nudgeText}>Invite travel companions</Text>
-                  </Pressable>
-                  <Pressable style={styles.nudgeRow} onPress={() => router.push('/(tabs)/discover')}>
-                    <MapPin size={16} color={colors.accent} />
-                    <Text style={styles.nudgeText}>Discover places to visit</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ) : (
-              <CountdownCard
-                tripStartISO={
-                  flights.find((f) => f.direction === 'Outbound')?.departTime ??
-                  trip.startDate
-                }
-                status={'upcoming'}
-                dayNumber={undefined}
-                totalDays={countdown.totalDays}
-                dateLabel={
-                  flights.find((f) => f.direction === 'Outbound')?.departTime
-                    ? formatDatePHT(
-                        flights.find((f) => f.direction === 'Outbound')!
-                          .departTime,
-                      )
-                    : formatDatePHT(trip.startDate)
-                }
-                onBoard={boardFlight}
-              />
-            )}
+            <PhaseCard
+              phase={phase}
+              trip={trip}
+              flights={flights}
+              countdown={countdown}
+              totalSpent={totalSpent}
+              todaySpent={todaySpent}
+              todayCount={todayCount}
+              onBoard={boardFlight}
+              onLanded={landFlight}
+              onStart={goExplore}
+            />
           </Animated.View>
         </View>
 
@@ -614,7 +439,7 @@ export default function HomeScreen() {
   );
 }
 
-const getStyles = (colors: ReturnType<typeof import('@/constants/ThemeContext').useTheme>['colors']) =>
+const getStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     fullCenter: {
@@ -625,7 +450,6 @@ const getStyles = (colors: ReturnType<typeof import('@/constants/ThemeContext').
       gap: spacing.md,
       padding: spacing.lg,
     },
-    loadingText: { color: colors.text2, fontSize: 13 },
     errorTitle: { color: colors.text, fontSize: 18, fontWeight: '700' },
     errorText: { color: colors.text2, fontSize: 13, textAlign: 'center' },
     retry: {
@@ -639,46 +463,5 @@ const getStyles = (colors: ReturnType<typeof import('@/constants/ThemeContext').
     phaseSection: {
       paddingHorizontal: 16,
       paddingBottom: 14,
-    },
-    planningCard: {
-      backgroundColor: colors.card,
-      borderRadius: 20,
-      padding: 24,
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    planningEmoji: {
-      fontSize: 36,
-      marginBottom: 12,
-    },
-    planningTitle: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: colors.text,
-      marginBottom: 4,
-    },
-    planningSubtitle: {
-      fontSize: 13,
-      color: colors.text2,
-      marginBottom: 20,
-    },
-    planningNudges: {
-      width: '100%',
-      gap: 12,
-    },
-    nudgeRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 10,
-      backgroundColor: colors.accentDim,
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      borderRadius: 12,
-    },
-    nudgeText: {
-      fontSize: 14,
-      fontWeight: '500',
-      color: colors.accent,
     },
   });

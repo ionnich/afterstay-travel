@@ -22,4 +22,7 @@
   "submit": {
     "production": {}
   }
+  // Sentry source-map upload: set EXPO_PUBLIC_SENTRY_DSN (client DSN) and add a
+  // build/postPublish hook once @sentry/cli is available. Requires EAS env vars
+  // SENTRY_AUTH_TOKEN + SENTRY_ORG + SENTRY_PROJECT. Not added yet — no @sentry/cli installed.
 }

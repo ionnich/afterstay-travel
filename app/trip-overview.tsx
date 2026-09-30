@@ -1,36 +1,28 @@
 import { useRouter } from 'expo-router';
 import {
-  ArrowLeft,
   Bed,
   CheckSquare,
-  ChevronDown,
   ChevronLeft,
-  ClipboardList,
-  Copy,
   DollarSign,
   MapPin,
   Plane,
   Luggage,
   Users,
 } from 'lucide-react-native';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
-  Animated,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme, ThemeColors } from '@/constants/ThemeContext';
-import { elevation, radius, spacing, typography } from '@/constants/theme';
+import { radius, spacing, typography } from '@/constants/theme';
 import {
   getActiveTrip,
   getChecklist,
@@ -39,7 +31,6 @@ import {
   getGroupMembers,
   getPackingList,
   getSavedPlaces,
-  updateTripProperty,
 } from '@/lib/api';
 import type {
   ChecklistItem,
@@ -48,10 +39,16 @@ import type {
   GroupMember,
   PackingItem,
   Place,
-  PlaceCategory,
   Trip,
 } from '@/lib/types';
 import { safeParse, MS_PER_DAY } from '@/lib/utils';
+import {
+  CollapsibleCard,
+  CopyRow,
+  EditableInfoRow,
+  ProgressBar,
+  SimpleCard,
+} from '@/components/trip-overview/cards';
 
 // ---------- helpers ----------
 
@@ -92,237 +89,6 @@ function progressColor(pct: number, colors: any): string {
   if (pct >= 80) return colors.green;
   if (pct >= 50) return colors.amber;
   return colors.red;
-}
-
-// ---------- collapsible card ----------
-
-function CollapsibleCard({
-  icon,
-  title,
-  children,
-  defaultOpen = true,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}) {
-  const { colors } = useTheme();
-  const styles = useMemo(() => getStyles(colors), [colors]);
-  const [open, setOpen] = useState(defaultOpen);
-  const rotation = useRef(new Animated.Value(defaultOpen ? 1 : 0)).current;
-
-  const toggle = () => {
-    Animated.timing(rotation, {
-      toValue: open ? 0 : 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-    setOpen(!open);
-  };
-
-  const rotate = rotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  });
-
-  return (
-    <View style={styles.card}>
-      <Pressable onPress={toggle} style={styles.cardHeader} accessibilityLabel={`${open ? 'Collapse' : 'Expand'} ${title}`} accessibilityRole="button">
-        {icon}
-        <Text style={[styles.cardTitle, { flex: 1 }]}>{title}</Text>
-        <Animated.View style={{ transform: [{ rotate }] }}>
-          <ChevronDown size={16} color={colors.text2} />
-        </Animated.View>
-      </Pressable>
-      {open && children}
-    </View>
-  );
-}
-
-// ---------- non-collapsible card (header only) ----------
-
-function SimpleCard({ children }: { children: React.ReactNode }) {
-  const { colors } = useTheme();
-  const styles = useMemo(() => getStyles(colors), [colors]);
-  return <View style={styles.card}>{children}</View>;
-}
-
-function ProgressBar({ pct, color }: { pct: number; color: string }) {
-  const { colors } = useTheme();
-  const styles = useMemo(() => getStyles(colors), [colors]);
-  return (
-    <View style={styles.progressTrack}>
-      <View style={[styles.progressFill, { width: `${Math.min(pct, 100)}%`, backgroundColor: color }]} />
-    </View>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  const { colors } = useTheme();
-  const styles = useMemo(() => getStyles(colors), [colors]);
-  if (!value) return null;
-  return (
-    <View style={styles.infoRow}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
-    </View>
-  );
-}
-
-function CopyRow({
-  label,
-  value,
-  notionKey,
-  tripId,
-  onUpdate,
-}: {
-  label: string;
-  value: string;
-  notionKey?: string;
-  tripId?: string;
-  onUpdate?: (newValue: string) => void;
-}) {
-  const { colors } = useTheme();
-  const styles = useMemo(() => getStyles(colors), [colors]);
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(value);
-  const [saving, setSaving] = useState(false);
-
-  const handleCopy = () => {
-    if (value) Clipboard.setStringAsync(value);
-  };
-
-  const handleSave = async () => {
-    if (!notionKey || !tripId) return;
-    setSaving(true);
-    try {
-      await updateTripProperty(tripId, notionKey, draft);
-      onUpdate?.(draft);
-      setEditing(false);
-      Alert.alert('Saved!', `${label} updated successfully.`);
-    } catch (err: any) {
-      Alert.alert('Error', `Failed to save ${label}: ${err?.message ?? 'Unknown error'}. Try again.`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (editing) {
-    return (
-      <View style={styles.editRow}>
-        <Text style={styles.infoLabel}>{label}</Text>
-        <View style={styles.editInputRow}>
-          <TextInput
-            style={styles.editInput}
-            value={draft}
-            onChangeText={setDraft}
-            autoFocus
-            placeholderTextColor={colors.text3}
-            placeholder={`Enter ${label.toLowerCase()}`}
-          />
-          <Pressable onPress={handleSave} disabled={saving} style={styles.editSaveBtn}>
-            {saving ? (
-              <ActivityIndicator size="small" color={colors.white} />
-            ) : (
-              <Text style={styles.editSaveText}>Save</Text>
-            )}
-          </Pressable>
-          <Pressable onPress={() => { setDraft(value); setEditing(false); }}>
-            <Text style={styles.editCancelText}>Cancel</Text>
-          </Pressable>
-        </View>
-      </View>
-    );
-  }
-
-  if (!value && !notionKey) return null;
-
-  return (
-    <Pressable onPress={notionKey ? () => { setDraft(value); setEditing(true); } : undefined} style={styles.infoRow}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <View style={styles.copyRow}>
-        <Text style={[styles.infoValue, !value && styles.emptyValue]}>
-          {value || 'Tap to add'}
-        </Text>
-        {value ? (
-          <Pressable onPress={handleCopy} hitSlop={8}>
-            <Copy size={14} color={colors.text2} />
-          </Pressable>
-        ) : null}
-      </View>
-    </Pressable>
-  );
-}
-
-function EditableInfoRow({
-  label,
-  value,
-  notionKey,
-  tripId,
-  onUpdate,
-}: {
-  label: string;
-  value: string;
-  notionKey: string;
-  tripId: string;
-  onUpdate?: (newValue: string) => void;
-}) {
-  const { colors } = useTheme();
-  const styles = useMemo(() => getStyles(colors), [colors]);
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(value);
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await updateTripProperty(tripId, notionKey, draft);
-      onUpdate?.(draft);
-      setEditing(false);
-      Alert.alert('Saved!', `${label} updated successfully.`);
-    } catch (err: any) {
-      Alert.alert('Error', `Failed to save ${label}: ${err?.message ?? 'Unknown error'}. Try again.`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (editing) {
-    return (
-      <View style={styles.editRow}>
-        <Text style={styles.infoLabel}>{label}</Text>
-        <View style={styles.editInputRow}>
-          <TextInput
-            style={styles.editInput}
-            value={draft}
-            onChangeText={setDraft}
-            autoFocus
-            placeholderTextColor={colors.text3}
-          />
-          <Pressable onPress={handleSave} disabled={saving} style={styles.editSaveBtn}>
-            {saving ? (
-              <ActivityIndicator size="small" color={colors.white} />
-            ) : (
-              <Text style={styles.editSaveText}>Save</Text>
-            )}
-          </Pressable>
-          <Pressable onPress={() => { setDraft(value); setEditing(false); }}>
-            <Text style={styles.editCancelText}>Cancel</Text>
-          </Pressable>
-        </View>
-      </View>
-    );
-  }
-
-  return (
-    <Pressable onPress={() => { setDraft(value); setEditing(true); }} style={styles.infoRow}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={[styles.infoValue, !value && styles.emptyValue]}>
-        {value || 'Tap to add'}
-      </Text>
-    </Pressable>
-  );
 }
 
 // ---------- main screen ----------
@@ -593,29 +359,6 @@ const getStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.md,
   },
 
-  // card
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...elevation.card,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  cardTitle: {
-    color: colors.text,
-    fontSize: 14,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
-
   // trip header
   destination: { ...typography.h1, color: colors.text },
   dateRange: { color: colors.text2, fontSize: 14, marginTop: spacing.xs },
@@ -637,37 +380,6 @@ const getStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.border,
     marginVertical: spacing.md,
   },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 3,
-  },
-  infoLabel: { color: colors.text2, fontSize: 13 },
-  infoValue: { color: colors.text, fontSize: 13, fontWeight: '500' },
-  copyRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  emptyValue: { color: colors.text3, fontStyle: 'italic' },
-  editRow: { paddingVertical: spacing.xs, gap: spacing.xs },
-  editInputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  editInput: {
-    flex: 1,
-    color: colors.text,
-    fontSize: 13,
-    borderWidth: 1,
-    borderColor: colors.border2,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    backgroundColor: colors.bg3,
-  },
-  editSaveBtn: {
-    backgroundColor: colors.green,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs + 2,
-    borderRadius: radius.sm,
-  },
-  editSaveText: { color: colors.white, fontSize: 12, fontWeight: '600' },
-  editCancelText: { color: colors.text2, fontSize: 12 },
 
   // flights
   flightRow: {
@@ -717,16 +429,6 @@ const getStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   progressLabel: { color: colors.text2, fontSize: 13 },
   progressPct: { fontSize: 15, fontWeight: '700' },
-  progressTrack: {
-    height: 6,
-    backgroundColor: colors.bg3,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: 6,
-    borderRadius: 3,
-  },
 
   // budget
   budgetTotal: { color: colors.text, fontSize: 22, fontWeight: '700' },

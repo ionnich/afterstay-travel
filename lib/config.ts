@@ -6,6 +6,7 @@ export const CONFIG = {
   COGNITO_OAUTH_DOMAIN: process.env.EXPO_PUBLIC_COGNITO_OAUTH_DOMAIN || '',
   GOOGLE_MAPS_SDK_KEY: process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY || '',
   GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '',
+  SENTRY_DSN: process.env.EXPO_PUBLIC_SENTRY_DSN || '',
   HOTEL_COORDS: { lat: 11.971, lng: 121.9215 },
   TRIP_BUDGET_KEY: 'tripBudget_v1',
 } as const;
@@ -24,6 +25,7 @@ export const verifyConfig = (): boolean => {
     ['COGNITO_OAUTH_DOMAIN', CONFIG.COGNITO_OAUTH_DOMAIN],
     ['GOOGLE_MAPS_SDK_KEY', CONFIG.GOOGLE_MAPS_SDK_KEY],
     ['GOOGLE_WEB_CLIENT_ID', CONFIG.GOOGLE_WEB_CLIENT_ID],
+    ['SENTRY_DSN', CONFIG.SENTRY_DSN],
   ] as const;
   for (const [k, v] of optional) {
     if (!v) console.warn(`[CONFIG] Optional: ${k} not set`);
