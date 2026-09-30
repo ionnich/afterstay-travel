@@ -23,7 +23,7 @@ import {
   sendChatMessage,
   subscribeToChatMessages,
   type ChatMessage,
-} from '@/lib/supabase';
+} from '@/lib/api';
 
 export default function GroupChatScreen() {
   const { colors } = useTheme();
@@ -37,7 +37,7 @@ export default function GroupChatScreen() {
   const [tripId, setTripId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
 
-  const myName = user?.user_metadata?.full_name
+  const myName = user?.name
     ?? user?.email?.split('@')[0]
     ?? 'Me';
 

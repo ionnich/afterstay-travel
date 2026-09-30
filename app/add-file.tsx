@@ -22,7 +22,7 @@ import FormField from '@/components/FormField';
 import Select from '@/components/Select';
 import { useTheme } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { addTripFile } from '@/lib/supabase';
+import { addTripFile } from '@/lib/api';
 import type { TripFileType } from '@/lib/types';
 
 const FILES_DIR = (documentDirectory ?? '') + 'trip-files/';

@@ -16,10 +16,10 @@ import AIRecommendationCard from '@/components/AIRecommendationCard';
 import Select from '@/components/Select';
 import { useTheme, ThemeColors } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { generateItinerary, generateRecommendations } from '@/lib/anthropic';
-import { enrichRecommendations } from '@/lib/google-places';
-import type { ItineraryDay, ItineraryActivity, PlannerPace } from '@/lib/anthropic';
-import { addPlace, getActiveTrip } from '@/lib/supabase';
+import { generateItinerary, generateRecommendations } from '@/lib/api';
+import { enrichRecommendations } from '@/lib/api';
+import type { ItineraryDay, ItineraryActivity, PlannerPace } from '@/lib/api';
+import { addPlace, getActiveTrip } from '@/lib/api';
 import type { AIRecommendation, PlaceCategory } from '@/lib/types';
 
 const FIRST_TIME = ['First visit', 'Been before', 'Local-ish'] as const;

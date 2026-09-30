@@ -24,23 +24,9 @@ import Animated, {
 import Svg, { Path, Circle as SvgCircle, Rect, Line, Polyline } from 'react-native-svg';
 import { useTheme } from '@/constants/ThemeContext';
 import { useAuth } from '@/lib/auth';
-import { CONFIG } from '@/lib/config';
-import { supabase } from '@/lib/supabase';
+import { signUp as cognitoSignUp, signInWithRedirect } from 'aws-amplify/auth';
 import { spacing, radius } from '@/constants/theme';
 import ConstellationHero from '@/components/auth/ConstellationHero';
-
-/* Lazy-load Google Sign-In so Expo Go without the native module doesn't crash */
-let googleSigninModule: typeof import('@react-native-google-signin/google-signin') | null = null;
-
-async function getGoogleSignin() {
-  if (!googleSigninModule) {
-    googleSigninModule = await import('@react-native-google-signin/google-signin');
-    googleSigninModule.GoogleSignin.configure({
-      webClientId: CONFIG.GOOGLE_WEB_CLIENT_ID,
-    });
-  }
-  return googleSigninModule;
-}
 
 type Panel = 'root' | 'email' | 'sent';
 
@@ -460,19 +446,17 @@ export default function LoginScreen() {
     setError(null);
 
     if (isSignUp) {
-      const { data, error: err } = await supabase.auth.signUp({
-        email: email.trim(),
-        password: password,
-      });
-      if (err) {
-        setLoading(false);
-        setError(err.message);
-      } else if (data.session) {
-        // Automatically signed in
-        router.replace('/');
-      } else {
+      try {
+        await cognitoSignUp({
+          username: email.trim(),
+          password,
+          options: { userAttributes: { email: email.trim() } },
+        });
         setLoading(false);
         Alert.alert('Verify your email', 'We sent a confirmation link to your email. Please check it to complete registration.');
+      } catch (e) {
+        setLoading(false);
+        setError(e instanceof Error ? e.message : 'Sign up failed');
       }
     } else {
       const { error: err } = await signIn(email.trim(), password);
@@ -571,29 +555,11 @@ export default function LoginScreen() {
                   try {
                     setLoading(true);
                     setError(null);
-                    const { GoogleSignin, statusCodes } = await getGoogleSignin();
-                    await GoogleSignin.hasPlayServices();
-                    const response = await GoogleSignin.signIn();
-                    const idToken = response.data?.idToken;
-                    if (!idToken) {
-                      setLoading(false);
-                      Alert.alert('Sign-In Error', 'No ID token received from Google');
-                      return;
-                    }
-                    const { error: googleErr } = await supabase.auth.signInWithIdToken({
-                      provider: 'google',
-                      token: idToken,
-                    });
-                    if (googleErr) {
-                      setLoading(false);
-                      Alert.alert('Sign-In Error', googleErr.message);
-                    }
-                    // Success: session useEffect handles redirect
+                    await signInWithRedirect({ provider: 'Google' });
+                    // Success: OAuth redirect → /auth/callback → session useEffect handles redirect
                   } catch (e: unknown) {
                     setLoading(false);
                     const err = e as { code?: string; message?: string };
-                    if (err.code === 'SIGN_IN_CANCELLED') return;
-                    if (err.code === 'IN_PROGRESS') return;
                     Alert.alert('Google Sign-In failed', err.message ?? 'Unknown error');
                   }
                 }}

@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import Svg, { Path, Circle as SvgCircle } from 'react-native-svg';
 import { useTheme } from '@/constants/ThemeContext';
-import { getMoments, getGroupMembers } from '@/lib/supabase';
+import { getMoments, getGroupMembers } from '@/lib/api';
 import { formatDatePHT } from '@/lib/utils';
 import type { Moment, GroupMember } from '@/lib/types';
 import type { MomentDisplay, PeopleMap } from './types';
@@ -175,7 +175,7 @@ export function MomentsTab({ tripId }: MomentsTabProps) {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          const { deletePage } = await import('@/lib/supabase');
+          const { deletePage } = await import('@/lib/api');
           try { await deletePage(id); } catch { /* skip */ }
           setRawMoments((prev) => prev.filter((m) => m.id !== id));
         },
@@ -184,16 +184,11 @@ export function MomentsTab({ tripId }: MomentsTabProps) {
   }, [actionMomentId]);
 
   const handleEditSave = useCallback(async (id: string, updates: { caption?: string; location?: string }) => {
-    try {
-      const { supabase } = await import('@/lib/supabase');
-      await supabase.from('moments').update({
-        caption: updates.caption ?? null,
-        location: updates.location ?? null,
-      }).eq('id', id);
-      setRawMoments((prev) =>
-        prev.map((m) => m.id === id ? { ...m, caption: updates.caption ?? m.caption, location: updates.location ?? m.location } : m),
-      );
-    } catch { /* ignore */ }
+    // ponytail: no PATCH /moments/{id} route on the API yet — caption/location edits
+    // are local-only until the Rust backend grows an update_moment handler.
+    setRawMoments((prev) =>
+      prev.map((m) => m.id === id ? { ...m, caption: updates.caption ?? m.caption, location: updates.location ?? m.location } : m),
+    );
   }, []);
 
   const handleDeleteSelected = useCallback(async () => {
@@ -207,7 +202,7 @@ export function MomentsTab({ tripId }: MomentsTabProps) {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            const { deletePage } = await import('@/lib/supabase');
+            const { deletePage } = await import('@/lib/api');
             for (const id of selectedIds) {
               try { await deletePage(id); } catch { /* skip */ }
             }
@@ -455,7 +450,7 @@ export function MomentsTab({ tripId }: MomentsTabProps) {
         people={people}
         allMoments={filtered}
         onDelete={(id) => {
-          import('@/lib/supabase').then(({ deletePage }) => {
+          import('@/lib/api').then(({ deletePage }) => {
             deletePage(id).catch(() => {});
           });
           setRawMoments((prev) => prev.filter((m) => m.id !== id));

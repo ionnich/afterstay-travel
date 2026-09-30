@@ -46,7 +46,7 @@ import {
   getGroupMembers,
   updateTripBudgetLimit,
   updateTripBudgetMode,
-} from '@/lib/supabase';
+} from '@/lib/api';
 import { formatCurrency, formatDatePHT, safeParse, MS_PER_DAY } from '@/lib/utils';
 import type { Expense, GroupMember, Trip } from '@/lib/types';
 

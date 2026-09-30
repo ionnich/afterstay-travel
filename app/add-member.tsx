@@ -16,7 +16,7 @@ import {
 import FormField from '@/components/FormField';
 import { useTheme } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { addGroupMember } from '@/lib/supabase';
+import { addGroupMember } from '@/lib/api';
 
 export default function AddMemberScreen() {
   const router = useRouter();

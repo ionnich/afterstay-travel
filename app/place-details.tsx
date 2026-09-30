@@ -17,8 +17,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AfterStayLoader from '@/components/AfterStayLoader';
 import { useTheme, ThemeColors } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { getPlaceDetails, type PlaceDetails } from '@/lib/google-places';
-import { addPlace } from '@/lib/supabase';
+import { getPlaceDetails, type PlaceDetails } from '@/lib/api';
+import { addPlace } from '@/lib/api';
 
 function priceLevelString(level?: number): string {
   if (level == null) return '';

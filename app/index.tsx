@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/auth';
 import { useEffect, useState } from 'react';
 import AfterStayLoader from '@/components/AfterStayLoader';
 import { cacheGet, cacheSet } from '@/lib/cache';
-import { getActiveTrip } from '@/lib/supabase';
+import { getActiveTrip } from '@/lib/api';
 
 export default function Index() {
   const { session, loading } = useAuth();
@@ -24,7 +24,7 @@ export default function Index() {
           return;
         }
 
-        // No cache flag — check if user has existing trips in Supabase
+        // No cache flag — check if user has existing trips
         // This handles OTA updates or cache clears gracefully
         const trip = await getActiveTrip().catch(() => null);
         if (trip) {

@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import {
   ArrowLeft, Plane, Hotel, MapPin, Users, Wallet, Calendar,
 } from 'lucide-react-native';
-import { getActiveTrip, getExpenses, getFlights, getGroupMembers } from '../lib/supabase';
+import { getActiveTrip, getExpenses, getFlights, getGroupMembers } from '../lib/api';
 import type { Expense, Flight, GroupMember, Trip } from '../lib/types';
 import { useTheme, ThemeColors } from '@/constants/ThemeContext';
 import { formatDatePHT, formatTimePHT, safeParse, MS_PER_DAY } from '@/lib/utils';

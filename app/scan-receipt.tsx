@@ -19,9 +19,9 @@ import AfterStayLoader from '@/components/AfterStayLoader';
 import { ReceiptItemReview } from '@/components/budget/ReceiptItemReview';
 import { useTheme, ThemeColors } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { scanReceipt, type ScannedReceipt } from '@/lib/anthropic';
+import { scanReceipt, type ScannedReceipt } from '@/lib/api';
 import { compressImage } from '@/lib/compressImage';
-import { getActiveTrip, getGroupMembers } from '@/lib/supabase';
+import { getActiveTrip, getGroupMembers } from '@/lib/api';
 import type { GroupMember } from '@/lib/types';
 
 type Phase = 'picking' | 'scanning' | 'review' | 'error';

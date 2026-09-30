@@ -40,7 +40,7 @@ import {
   getPackingList,
   getSavedPlaces,
   updateTripProperty,
-} from '@/lib/supabase';
+} from '@/lib/api';
 import type {
   ChecklistItem,
   Expense,

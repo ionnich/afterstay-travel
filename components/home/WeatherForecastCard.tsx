@@ -10,7 +10,7 @@ import { ChevronDown, Droplets, Sun, Thermometer, Umbrella, Wind } from 'lucide-
 
 import { useTheme, ThemeColors } from '@/constants/ThemeContext';
 import MiniLoader from '@/components/loader/MiniLoader';
-import { CONFIG } from '../../lib/config';
+import { getWeatherForecast } from '@/lib/api';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -43,6 +43,20 @@ interface CurrentWeather {
   feelsLike: number;
   humidity: number;
   windKph: number;
+}
+
+// Shape of the weatherapi.com forecast JSON returned by getWeatherForecast.
+interface RawWeather {
+  current?: {
+    temp_c: number;
+    condition?: { text?: string };
+    feelslike_c: number;
+    humidity: number;
+    wind_kph: number;
+  };
+  forecast: {
+    forecastday: unknown[];
+  };
 }
 
 /* ── Advisory tips based on weather data ── */
@@ -227,15 +241,9 @@ export const WeatherForecastCard: React.FC<WeatherForecastCardProps> = ({ destin
         if (!cancelled) setLoading(false);
         return;
       }
-      const res = await fetch(
-        `https://api.weatherapi.com/v1/forecast.json?key=${CONFIG.WEATHER_KEY}&q=${encodeURIComponent(location)}&days=5&aqi=no&alerts=no`,
-      );
-      const data = await res.json();
+      const data = (await getWeatherForecast(location)) as unknown as RawWeather;
 
-      if (data.error || cancelled) {
-        if (!cancelled) setLoading(false);
-        return;
-      }
+      if (cancelled) return;
 
       if (data.current && !cancelled) {
         setCurrent({

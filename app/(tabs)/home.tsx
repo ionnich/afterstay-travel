@@ -40,7 +40,7 @@ import {
   getFlights,
   getGroupMembers,
   getMoments,
-} from '@/lib/supabase';
+} from '@/lib/api';
 import type { Flight, GroupMember, Moment, Trip } from '@/lib/types';
 import { formatDatePHT, formatTimePHT, safeParse, MS_PER_DAY } from '@/lib/utils';
 

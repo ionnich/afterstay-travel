@@ -210,3 +210,124 @@ export interface Highlight {
   supportingData?: Record<string, unknown>;
   rank: number;
 }
+
+// ---------- AI TRIP PLANNER / RECEIPT SCAN (integration types) ----------
+
+export interface ItineraryActivity {
+  name: string;
+  category: 'Food' | 'Beach' | 'Activity' | 'Culture' | 'Nightlife' | 'Wellness' | 'Shopping' | 'Transport';
+  timeSlot: 'morning' | 'afternoon' | 'evening';
+  duration: string;       // e.g. "1-2 hrs"
+  cost: string;           // e.g. "₱500-800" or "Free"
+  tip: string;            // one-liner practical tip
+  description: string;    // one sentence about why this is worth it
+}
+
+export interface ItineraryDay {
+  day: number;
+  date: string;
+  theme: string;
+  activities: ItineraryActivity[];
+}
+
+// Legacy shape for backward compat with existing rendered itineraries
+export interface ItineraryDayLegacy {
+  day: number;
+  date: string;
+  theme: string;
+  morning: string;
+  afternoon: string;
+  evening: string;
+  dining: string;
+  tips: string;
+}
+
+export type PlannerScope = 'whole' | 'today' | 'surprise';
+export type PlannerPace = 'relaxed' | 'moderate' | 'packed';
+
+export interface ReceiptLineItem {
+  name: string;
+  qty: number;
+  amount: number;
+}
+
+export interface ScannedReceipt {
+  placeName: string;
+  description: string;
+  amount: number;
+  currency: string;
+  category: 'Food' | 'Transport' | 'Activity' | 'Accommodation' | 'Shopping' | 'Other';
+  date: string; // YYYY-MM-DD
+  items: ReceiptLineItem[]; // individual line items with amounts
+}
+
+export interface ScannedTripDetails {
+  destination: string;
+  startDate: string;       // YYYY-MM-DD
+  endDate: string;         // YYYY-MM-DD
+  accommodation?: string;  // hotel name
+  address?: string;
+  checkIn?: string;        // e.g. "3:00 PM"
+  checkOut?: string;
+  roomType?: string;
+  bookingRef?: string;
+  cost?: number;
+  costCurrency?: string;
+  flights?: {
+    direction: 'Outbound' | 'Return';
+    flightNumber: string;
+    airline?: string;
+    from: string;
+    to: string;
+    departTime: string;    // ISO datetime
+    arriveTime: string;
+    bookingRef?: string;
+  }[];
+  members?: string[];      // names found in bookings
+}
+
+// ---------- GOOGLE PLACES (integration types) ----------
+
+export interface PlaceSearchResult {
+  place_id: string;
+  name: string;
+  address: string;
+  rating: number;
+  total_ratings: number;
+  photo_url: string | null;
+  lat: number;
+  lng: number;
+}
+
+export interface NearbyPlace {
+  place_id: string;
+  name: string;
+  rating: number;
+  total_ratings: number;
+  price_level?: number;
+  address: string;
+  lat: number;
+  lng: number;
+  open_now?: boolean;
+  photo_url: string | null;
+  types: string[];
+}
+
+export interface PlaceDetails {
+  name: string;
+  rating: number;
+  formatted_phone_number?: string;
+  formatted_address: string;
+  opening_hours?: { weekday_text: string[] };
+  reviews?: { author_name: string; rating: number; text: string; relative_time_description: string }[];
+  photos: string[];
+  website?: string;
+  url?: string;
+  price_level?: number;
+  editorial_summary?: string;
+}
+
+export interface AutocompleteResult {
+  placeId: string;
+  description: string;
+}

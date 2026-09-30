@@ -17,7 +17,7 @@ import FormField from '@/components/FormField';
 import Select from '@/components/Select';
 import { useTheme } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { addPlace } from '@/lib/supabase';
+import { addPlace } from '@/lib/api';
 import type { PlaceCategory } from '@/lib/types';
 
 const CATEGORIES: PlaceCategory[] = [

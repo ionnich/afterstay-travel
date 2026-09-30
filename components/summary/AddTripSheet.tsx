@@ -17,7 +17,7 @@ import Svg, { Circle, Line as SvgLine, Path } from 'react-native-svg';
 
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/constants/ThemeContext';
-import { createTrip } from '@/lib/supabase';
+import { createTrip } from '@/lib/api';
 
 // ---------- TYPES ----------
 

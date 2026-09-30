@@ -5,7 +5,7 @@ import { useTheme } from '@/constants/ThemeContext';
 import { spacing, radius } from '@/constants/theme';
 import { formatCurrency } from '@/lib/utils';
 import type { GroupMember } from '@/lib/types';
-import type { ReceiptLineItem } from '@/lib/anthropic';
+import type { ReceiptLineItem } from '@/lib/api';
 
 type Assignment = 'shared' | string; // 'shared' or member name
 

@@ -30,13 +30,13 @@ import { type TrendingItem } from '@/components/discover/TrendingCard';
 import MiniLoader from '@/components/loader/MiniLoader';
 import PlaceDetailSheet from '@/components/discover/PlaceDetailSheet';
 import { useTheme } from '@/constants/ThemeContext';
-import { generateItinerary, type ItineraryDay, type PlannerScope, type PlannerPace } from '@/lib/anthropic';
+import { generateItinerary, type ItineraryDay, type PlannerScope, type PlannerPace } from '@/lib/api';
 import { distanceFromHotel, distanceFromPoint, formatDistance } from '@/lib/distance';
 import { MS_PER_DAY } from '@/lib/utils';
 import DistanceToggle from '@/components/discover/DistanceToggle';
 import ExploreMap from '@/components/discover/ExploreMap';
 import { cacheGet, cacheSet } from '@/lib/cache';
-import { searchNearby, type NearbyPlace } from '@/lib/google-places';
+import { searchNearby, type NearbyPlace } from '@/lib/api';
 import {
   addPlace,
   getActiveTrip,
@@ -44,7 +44,7 @@ import {
   getSavedPlaces,
   savePlace,
   voteOnPlace,
-} from '@/lib/supabase';
+} from '@/lib/api';
 import type { Place, PlaceCategory, PlaceVote } from '@/lib/types';
 
 
@@ -97,7 +97,7 @@ function resolveTypeLabel(types: string[]): string {
   return 'Place';
 }
 
-// Map Google Places type to PlaceCategory for Supabase storage
+// Map Google Places type to PlaceCategory for storage
 function resolveCategory(types: string[]): PlaceCategory {
   const mapping: Record<string, PlaceCategory> = {
     restaurant: 'Eat',
@@ -830,7 +830,7 @@ function DiscoverScreenInner() {
     });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-    // Persist to Supabase
+    // Persist the saved place
     if (!tripId) return;
     const existingPlace = savedPlaces.find((p) => p.name === name);
     if (existingPlace) {
@@ -889,7 +889,7 @@ function DiscoverScreenInner() {
     });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-    // Persist to Supabase as a suggested place
+    // Persist as a suggested place
     if (!tripId) return;
     const existingPlace = savedPlaces.find((p) => p.name === name);
     if (existingPlace) {

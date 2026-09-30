@@ -1,21 +1,34 @@
 export const CONFIG = {
-  GOOGLE_MAPS_KEY: process.env.EXPO_PUBLIC_GOOGLE_PLACES_KEY || '',
-  SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL || '',
-  SUPABASE_KEY: process.env.EXPO_PUBLIC_SUPABASE_KEY || '',
-  WEATHER_KEY: process.env.EXPO_PUBLIC_WEATHER_API_KEY || '',
-  ANTHROPIC_KEY: process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY || '',
-  TRIP_PAGE_ID: process.env.EXPO_PUBLIC_TRIP_PAGE_ID || '',
-  HOTEL: { lat: 11.9710, lng: 121.9215 },
-  HOTEL_COORDS: { lat: 11.9710, lng: 121.9215 },
+  API_URL: process.env.EXPO_PUBLIC_API_URL || '',
+  WS_URL: process.env.EXPO_PUBLIC_WS_URL || '',
+  COGNITO_USER_POOL_ID: process.env.EXPO_PUBLIC_COGNITO_USER_POOL_ID || '',
+  COGNITO_CLIENT_ID: process.env.EXPO_PUBLIC_COGNITO_CLIENT_ID || '',
+  COGNITO_OAUTH_DOMAIN: process.env.EXPO_PUBLIC_COGNITO_OAUTH_DOMAIN || '',
+  GOOGLE_MAPS_SDK_KEY: process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY || '',
   GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '',
+  HOTEL_COORDS: { lat: 11.971, lng: 121.9215 },
   TRIP_BUDGET_KEY: 'tripBudget_v1',
 } as const;
 
 export const verifyConfig = (): boolean => {
-  const missing: string[] = [];
-  if (!CONFIG.GOOGLE_MAPS_KEY) missing.push('GOOGLE_PLACES_KEY');
-  if (!CONFIG.SUPABASE_URL) missing.push('SUPABASE_URL');
-  if (!CONFIG.WEATHER_KEY) console.warn('[CONFIG] Optional: WEATHER_API_KEY not set');
+  const required = [
+    ['API_URL', CONFIG.API_URL],
+    ['COGNITO_USER_POOL_ID', CONFIG.COGNITO_USER_POOL_ID],
+    ['COGNITO_CLIENT_ID', CONFIG.COGNITO_CLIENT_ID],
+  ] as const;
+
+  const missing = required.filter(([, v]) => !v).map(([k]) => k);
+
+  const optional = [
+    ['WS_URL', CONFIG.WS_URL],
+    ['COGNITO_OAUTH_DOMAIN', CONFIG.COGNITO_OAUTH_DOMAIN],
+    ['GOOGLE_MAPS_SDK_KEY', CONFIG.GOOGLE_MAPS_SDK_KEY],
+    ['GOOGLE_WEB_CLIENT_ID', CONFIG.GOOGLE_WEB_CLIENT_ID],
+  ] as const;
+  for (const [k, v] of optional) {
+    if (!v) console.warn(`[CONFIG] Optional: ${k} not set`);
+  }
+
   if (missing.length) {
     console.error('[CONFIG] Missing env vars:', missing.join(', '));
     console.error('[CONFIG] Make sure they start with EXPO_PUBLIC_ in .env');

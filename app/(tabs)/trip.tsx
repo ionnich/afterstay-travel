@@ -54,7 +54,7 @@ import {
   updateMemberEmail,
   updateMemberPhone,
   updateMemberPhoto,
-} from '@/lib/supabase';
+} from '@/lib/api';
 import { buildTripCalendarUrl } from '@/lib/calendarInvite';
 import { formatDatePHT, formatTimePHT } from '@/lib/utils';
 import type {
@@ -659,7 +659,7 @@ export default function TripScreen() {
   const [editField, setEditField] = useState<'email' | 'phone' | null>(null);
   const [editValue, setEditValue] = useState('');
 
-  // Data from Supabase
+  // Trip data
   const [trip, setTrip] = useState<Trip | null>(null);
   const [membersData, setMembersData] = useState<GroupMember[]>([]);
   const [flightsData, setFlightsData] = useState<Flight[]>([]);

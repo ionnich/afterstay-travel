@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, ThemeColors } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
 import { formatDatePHT } from '@/lib/utils';
-import { deletePage, getActiveTrip, getMoments } from '@/lib/supabase';
+import { deletePage, getActiveTrip, getMoments } from '@/lib/api';
 import type { Moment } from '@/lib/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');

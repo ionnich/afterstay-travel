@@ -23,7 +23,7 @@ import { Camera, User, Plane, Bell, Info, ChevronRight, ArrowLeft, Sun, Moon, Pa
 import { spacing, radius } from '@/constants/theme';
 import { useTheme } from '@/constants/ThemeContext';
 import { useAuth } from '@/lib/auth';
-import { getActiveTrip, getProfile, updateProfile } from '@/lib/supabase';
+import { getActiveTrip, getProfile, updateProfile } from '@/lib/api';
 import type { Trip } from '@/lib/types';
 
 interface Profile {

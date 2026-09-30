@@ -1,5 +1,5 @@
 // Image URL helpers — pass through for now.
-// When Supabase Image Transforms are enabled, these can append ?width=N.
+// When server-side image transforms are enabled, these can append ?width=N.
 
 export function imageUrl(url: string | undefined): string | undefined {
   return url;

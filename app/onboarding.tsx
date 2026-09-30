@@ -32,8 +32,8 @@ import {
   addFlight,
   createTrip,
   joinTripByCode,
-} from '@/lib/supabase';
-import { scanTripDocuments } from '@/lib/anthropic';
+} from '@/lib/api';
+import { scanTripDocuments } from '@/lib/api';
 import { formatDatePHT, MS_PER_DAY } from '@/lib/utils';
 import type { Trip } from '@/lib/types';
 
@@ -520,7 +520,7 @@ function InvitedFlow({ onBack, onDone, colors }: { onBack: () => void; onDone: (
   const [airline, setAirline] = useState('');
   const [checkedBag, setCheckedBag] = useState<boolean | null>(null);
   const { user } = useAuth();
-  const name = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? '';
+  const name = user?.name ?? user?.email?.split('@')[0] ?? '';
 
   const AIRLINES = ['Philippine Airlines', 'Cebu Pacific', 'AirAsia', 'Other'];
 
@@ -648,7 +648,7 @@ export default function OnboardingScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const { user } = useAuth();
-  const firstName = user?.user_metadata?.full_name?.split(' ')[0]
+  const firstName = user?.name?.split(' ')[0]
     ?? user?.email?.split('@')[0]
     ?? 'traveler';
 

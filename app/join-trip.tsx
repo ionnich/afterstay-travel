@@ -17,7 +17,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import FormField from '@/components/FormField';
 import { useTheme } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { joinTripByCode, addFlight } from '@/lib/supabase';
+import { joinTripByCode, addFlight } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { formatDatePHT } from '@/lib/utils';
 import type { Trip } from '@/lib/types';
@@ -34,7 +34,7 @@ export default function JoinTripScreen() {
   const [phase, setPhase] = useState<Phase>('code');
   const [code, setCode] = useState(initialCode?.toUpperCase() ?? '');
   const [name, setName] = useState(
-    user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? '',
+    user?.name ?? user?.email?.split('@')[0] ?? '',
   );
   const [joining, setJoining] = useState(false);
   const [tripInfo, setTripInfo] = useState<Trip | null>(null);

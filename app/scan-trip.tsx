@@ -21,9 +21,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AfterStayLoader from '@/components/AfterStayLoader';
 import { useTheme } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { scanTripDocuments, type ScannedTripDetails } from '@/lib/anthropic';
+import { scanTripDocuments, type ScannedTripDetails } from '@/lib/api';
 import { compressImage } from '@/lib/compressImage';
-import { createTrip } from '@/lib/supabase';
+import { createTrip } from '@/lib/api';
 
 type Phase = 'upload' | 'scanning' | 'review' | 'error';
 

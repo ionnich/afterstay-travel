@@ -35,7 +35,7 @@ import { useRouter } from 'expo-router';
 
 import { useTheme } from '@/constants/ThemeContext';
 import EmptyState from '@/components/shared/EmptyState';
-import { getActiveTrip } from '@/lib/supabase';
+import { getActiveTrip } from '@/lib/api';
 import { formatDatePHT } from '@/lib/utils';
 import type { Trip } from '@/lib/types';
 
@@ -617,7 +617,7 @@ export default function GuideScreen() {
                     'New note',
                     'Add a quick note for the group',
                     (_text) => {
-                      // Note creation will be wired to Supabase
+                      // Note creation will be wired to the API
                     },
                     'plain-text',
                   );

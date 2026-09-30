@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { createInviteCode, getActiveTrip, getInvites, type TripInvite } from '@/lib/supabase';
+import { createInviteCode, getActiveTrip, getInvites, type TripInvite } from '@/lib/api';
 
 export default function InviteScreen() {
   const { colors } = useTheme();

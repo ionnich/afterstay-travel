@@ -22,8 +22,8 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { useTheme } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { placeAutocomplete } from '@/lib/google-places';
-import { addMoment } from '@/lib/supabase';
+import { placeAutocomplete } from '@/lib/api';
+import { addMoment } from '@/lib/api';
 import type { MomentTag } from '@/lib/types';
 
 type PhotoStatus = 'pending' | 'uploading' | 'done' | 'error';

@@ -22,8 +22,8 @@ import FormField from '@/components/FormField';
 import Select from '@/components/Select';
 import { useTheme } from '@/constants/ThemeContext';
 import { radius, spacing } from '@/constants/theme';
-import { getPlaceLocation, placeAutocomplete } from '@/lib/google-places';
-import { addExpense, getGroupMembers, updateExpense } from '@/lib/supabase';
+import { getPlaceLocation, placeAutocomplete } from '@/lib/api';
+import { addExpense, getGroupMembers, updateExpense } from '@/lib/api';
 import type { Expense } from '@/lib/types';
 
 const CATEGORY_EMOJI: Record<Expense['category'], string> = {
