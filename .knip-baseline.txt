@@ -1,8 +1,15 @@
-Unused files (23)
-components/CachedImage.tsx: components/CachedImage.tsx
+Unused files (29)
 components/budget/DiceRoller.tsx: components/budget/DiceRoller.tsx
 components/budget/SpinWheel.tsx: components/budget/SpinWheel.tsx
+components/discover/CategoryGrid.tsx: components/discover/CategoryGrid.tsx
+components/discover/TrendingCard.tsx: components/discover/TrendingCard.tsx
 components/fate/shared/SecondaryButton.tsx: components/fate/shared/SecondaryButton.tsx
+components/loader/CompassScene.tsx: components/loader/CompassScene.tsx
+components/loader/LivingPostcardLoader.tsx: components/loader/LivingPostcardLoader.tsx
+components/loader/MapScene.tsx: components/loader/MapScene.tsx
+components/loader/PlaneScene.tsx: components/loader/PlaneScene.tsx
+components/loader/PostcardScene.tsx: components/loader/PostcardScene.tsx
+components/loader/SunriseScene.tsx: components/loader/SunriseScene.tsx
 components/moments/recaps/MinimalTemplate.tsx: components/moments/recaps/MinimalTemplate.tsx
 components/moments/recaps/PolaroidTemplate.tsx: components/moments/recaps/PolaroidTemplate.tsx
 components/moments/recaps/RecapsLayout.tsx: components/moments/recaps/RecapsLayout.tsx
@@ -17,35 +24,33 @@ design-reference/screens/loader.jsx: design-reference/screens/loader.jsx
 design-reference/screens/login.jsx: design-reference/screens/login.jsx
 design-reference/screens/moments.jsx: design-reference/screens/moments.jsx
 design-reference/screens/trip.jsx: design-reference/screens/trip.jsx
-lib/cache/mediaCache.ts: lib/cache/mediaCache.ts
 lib/cache/storage.ts: lib/cache/storage.ts
 lib/imageUrl.ts: lib/imageUrl.ts
 plugins/withPackagingFix.js: plugins/withPackagingFix.js
 utils/fate/randomWinner.ts: utils/fate/randomWinner.ts
 Unused dependencies (1)
-package.json: @expo/vector-icons, base64-arraybuffer, exifr, expo-auth-session, expo-build-properties, expo-calendar, expo-secure-store, expo-sharing, react-native-maps, react-native-view-shot
+package.json: @aws-amplify/react-native, @expo/vector-icons, base64-arraybuffer, buffer, exifr, expo-auth-session, expo-calendar, react-native-maps, react-native-view-shot
 Unused devDependencies (1)
-package.json: @expo/ngrok, react-test-renderer, ts-prune
-Unlisted dependencies (1)
-app/(tabs)/_layout.tsx: @react-navigation/bottom-tabs
-Unused exports (10)
-components/discover/CategoryGrid.tsx: CategoryGrid
+package.json: @expo/ngrok, jest-expo, react-test-renderer, ts-prune
+Unused exports (8)
 components/discover/ExploreMap.tsx: MAP_AVAILABLE
 components/discover/PlaceDetailSheet.tsx: PlaceDetailSheet
-components/discover/TrendingCard.tsx: TrendingCard
-components/trip/tripConstants.ts: mapFlightToDisplay
+components/discover/discoverData.ts: resolveTypeLabel, formatReviewCount
+components/moments/mapUtils.ts: BOUNDS, gpsToMapPos, FALLBACK_POSITIONS
 constants/ThemeContext.tsx: lightColors
 constants/fateTheme.ts: personColors, fateTiming
 lib/distance.ts: haversine
-lib/google-places.ts: searchPlace
 lib/utils.ts: tripStatusLabel
-Unused exported types (7)
+Unused exported types (10)
 components/fate/wheel/useWheelSpin.ts: UseWheelSpinReturn
+components/home/PhaseCard.tsx: CountdownState
+components/moments/TripRecapModal.tsx: RecapPhoto
+components/trip/tripConstants.ts: PackingGroup
 constants/ThemeContext.tsx: ThemeMode
+hooks/budget/useBudget.ts: PaymentQr
 hooks/fate/useFateHistory.ts: UseFateHistoryReturn
-lib/anthropic.ts: ItineraryDayLegacy
-lib/google-places.ts: PlaceSearchResult, AutocompleteResult
-lib/types.ts: WeatherDay
+lib/auth.ts: User, Session, AuthContextType
+lib/types.ts: WeatherDay, PlaceSearchResult
 utils/fate/generateSpinPlan.ts: SpinStep, SpinPlan
 Duplicate exports (1)
 components/discover/PlaceDetailSheet.tsx: PlaceDetailSheet, default

@@ -17,7 +17,8 @@
       "bundleIdentifier": "com.afterstay.travel",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "AfterStay needs access to your photo library to add trip moments.",
-        "NSCameraUsageDescription": "AfterStay needs camera access to capture trip moments."
+        "NSCameraUsageDescription": "AfterStay needs camera access to capture trip moments.",
+        "NSLocationWhenInUseUsageDescription": "AfterStay uses your location to show nearby places and recommendations."
       },
       "icon": {
         "light": "./assets/icon/afterstay-icon.png",
@@ -43,6 +44,9 @@
       "expo-web-browser",
       "@react-native-community/datetimepicker",
       "@react-native-google-signin/google-signin",
+      "expo-build-properties",
+      "expo-secure-store",
+      "expo-sharing",
       "./plugins/withPackagingFix"
     ],
     "updates": {
