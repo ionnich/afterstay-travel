@@ -1,3 +1,6 @@
+import 'react-native-get-random-values';
+import 'react-native-url-polyfill/auto';
+
 import { DarkTheme, DefaultTheme, ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
