@@ -1,4 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
+import type { AudioPlayer } from 'expo-audio';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type SoundName =
@@ -12,29 +14,15 @@ export type SoundName =
 
 const MUTE_KEY = 'fate_muted';
 
-// Lazy-load expo-av — crashes in Expo Go where ExponentAV native module is missing
-let Audio: typeof import('expo-av').Audio | null = null;
-let soundFiles: Record<string, any> | null = null;
-
-function ensureAV() {
-  if (Audio) return true;
-  try {
-    const mod = require('expo-av');
-    Audio = mod.Audio;
-    soundFiles = {
-      rattle: require('@/assets/sounds/fate/spin-rattle.wav'),
-      scratch: require('@/assets/sounds/fate/record-scratch.wav'),
-      drumroll: require('@/assets/sounds/fate/drumroll.wav'),
-      reveal: require('@/assets/sounds/fate/fate-reveal.wav'),
-      heartbeat: require('@/assets/sounds/fate/heartbeat.wav'),
-      boom: require('@/assets/sounds/fate/boom.wav'),
-      chime: require('@/assets/sounds/fate/soft-chime.wav'),
-    };
-    return true;
-  } catch {
-    return false;
-  }
-}
+const soundFiles: Record<SoundName, number> = {
+  rattle: require('@/assets/sounds/fate/spin-rattle.wav'),
+  scratch: require('@/assets/sounds/fate/record-scratch.wav'),
+  drumroll: require('@/assets/sounds/fate/drumroll.wav'),
+  reveal: require('@/assets/sounds/fate/fate-reveal.wav'),
+  heartbeat: require('@/assets/sounds/fate/heartbeat.wav'),
+  boom: require('@/assets/sounds/fate/boom.wav'),
+  chime: require('@/assets/sounds/fate/soft-chime.wav'),
+};
 
 export interface UseSoundsReturn {
   play: (name: SoundName) => Promise<void>;
@@ -45,24 +33,20 @@ export interface UseSoundsReturn {
 }
 
 export function useSounds(): UseSoundsReturn {
-  const soundsRef = useRef<Map<SoundName, any>>(new Map());
+  const soundsRef = useRef<Map<SoundName, AudioPlayer>>(new Map());
   const [isLoaded, setIsLoaded] = useState(false);
   const [muted, setMutedState] = useState(false);
   const mutedRef = useRef(false);
 
   useEffect(() => {
-    if (!ensureAV() || !Audio || !soundFiles) {
-      setIsLoaded(true); // mark loaded so UI doesn't block
-      return;
-    }
-
     let cancelled = false;
 
     async function init() {
-      await Audio!.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-      });
+      try {
+        await setAudioModeAsync({ playsInSilentMode: true, interruptionMode: 'mixWithOthers' });
+      } catch {
+        // audio mode is not critical — continue
+      }
 
       const storedMute = await AsyncStorage.getItem(MUTE_KEY);
       if (storedMute === 'true') {
@@ -70,12 +54,10 @@ export function useSounds(): UseSoundsReturn {
         mutedRef.current = true;
       }
 
-      const entries = Object.entries(soundFiles!) as [SoundName, any][];
-      for (const [name, source] of entries) {
+      for (const [name, source] of Object.entries(soundFiles) as [SoundName, number][]) {
         if (cancelled) return;
         try {
-          const { sound } = await Audio!.Sound.createAsync(source);
-          soundsRef.current.set(name, sound);
+          soundsRef.current.set(name, createAudioPlayer(source));
         } catch {
           // Sound loading failed — continue without it
         }
@@ -87,8 +69,8 @@ export function useSounds(): UseSoundsReturn {
 
     return () => {
       cancelled = true;
-      for (const sound of soundsRef.current.values()) {
-        sound.unloadAsync();
+      for (const player of soundsRef.current.values()) {
+        player.remove();
       }
       soundsRef.current.clear();
     };
@@ -96,23 +78,23 @@ export function useSounds(): UseSoundsReturn {
 
   const play = useCallback(async (name: SoundName) => {
     if (mutedRef.current) return;
-    const sound = soundsRef.current.get(name);
-    if (!sound) return;
+    const player = soundsRef.current.get(name);
+    if (!player) return;
     try {
-      await sound.setPositionAsync(0);
-      await sound.playAsync();
+      await player.seekTo(0);
+      player.play();
     } catch {
       // Playback failed — ignore
     }
   }, []);
 
   const stop = useCallback(async (name: SoundName) => {
-    const sound = soundsRef.current.get(name);
-    if (!sound) return;
+    const player = soundsRef.current.get(name);
+    if (!player) return;
     try {
-      await sound.stopAsync();
+      player.pause();
     } catch {
-      // Already stopped or unloaded
+      // Already stopped or removed
     }
   }, []);
 

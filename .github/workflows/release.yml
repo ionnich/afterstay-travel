@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      EXPO_PUBLIC_API_URL: ${{ secrets.EXPO_PUBLIC_API_URL }}
+      EXPO_PUBLIC_WS_URL: ${{ secrets.EXPO_PUBLIC_WS_URL }}
+      EXPO_PUBLIC_COGNITO_USER_POOL_ID: ${{ secrets.EXPO_PUBLIC_COGNITO_USER_POOL_ID }}
+      EXPO_PUBLIC_COGNITO_CLIENT_ID: ${{ secrets.EXPO_PUBLIC_COGNITO_CLIENT_ID }}
+      EXPO_PUBLIC_COGNITO_OAUTH_DOMAIN: ${{ secrets.EXPO_PUBLIC_COGNITO_OAUTH_DOMAIN }}
+      EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ secrets.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID }}
+      EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY: ${{ secrets.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # android/ is gitignored (CNG) — generate it before the SDK setup reads gradle.
+      - name: Prebuild Android project
+        run: npx expo prebuild --platform android --no-install
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: "platforms;android-35 build-tools;35.0.0"
+
+      - name: Build release APK
+        run: cd android && ./gradlew assembleRelease
+
+      - name: Rename APK for stable download URL
+        run: cp android/app/build/outputs/apk/release/app-release.apk AfterStay.apk
+
+      - name: Read app version
+        id: version
+        run: echo "version=$(node -p "require('./app.json').expo.version")" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}-${{ github.run_number }}
+          name: v${{ steps.version.outputs.version }} (build ${{ github.run_number }})
+          files: AfterStay.apk
+          generate_release_notes: true
