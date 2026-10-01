@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'rea
 import type { ThemeColors } from '@/constants/ThemeContext';
 import { spacing } from '@/constants/theme';
 import {
-  DividerOr,
   FieldLabel,
   PrimaryButton,
   StyledInput,
@@ -23,7 +22,6 @@ interface EmailFormProps {
   onChangePassword: (text: string) => void;
   onToggleSignUp: () => void;
   onAuthAction: () => void;
-  onSendMagicLink: () => void;
   onBack: () => void;
 }
 
@@ -39,7 +37,6 @@ export default function EmailForm({
   onChangePassword,
   onToggleSignUp,
   onAuthAction,
-  onSendMagicLink,
   onBack,
 }: EmailFormProps) {
   return (
@@ -61,7 +58,7 @@ export default function EmailForm({
           {isSignUp ? 'Create an account' : 'Sign in with email'}
         </Text>
         <Text style={[styles.subText, { color: colors.text2 }]}>
-          {isSignUp ? 'Join Afterstay to start planning your trips.' : "We'll send a secure link — no password to remember."}
+          {isSignUp ? 'Join Afterstay to start planning your trips.' : 'Enter your password to sign in.'}
         </Text>
       </View>
 
@@ -127,29 +124,6 @@ export default function EmailForm({
             </Text>
           </Text>
         </TouchableOpacity>
-
-        {/* OR divider */}
-        <DividerOr colors={colors} />
-
-        {/* Send magic link */}
-        <TouchableOpacity
-          onPress={onSendMagicLink}
-          disabled={!isEmailValid || loading}
-          activeOpacity={0.8}
-          accessibilityRole="button"
-          accessibilityLabel="Send magic link instead"
-          style={[
-            styles.ghostButton,
-            {
-              borderColor: colors.accentBorder,
-              opacity: !isEmailValid ? 0.5 : 1,
-            },
-          ]}
-        >
-          <Text style={[styles.ghostButtonText, { color: colors.accent }]}>
-            Send magic link instead
-          </Text>
-        </TouchableOpacity>
       </View>
 
       {/* Back link */}
@@ -189,19 +163,6 @@ const styles = StyleSheet.create({
   },
   fieldGroup: {
     gap: spacing.md + 2,
-  },
-  ghostButton: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    backgroundColor: 'transparent',
-  },
-  ghostButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
   },
   topBackBtn: {
     alignSelf: 'flex-start',

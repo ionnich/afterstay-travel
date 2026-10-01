@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import type { ThemeColors } from '@/constants/ThemeContext';
 import { spacing, radius } from '@/constants/theme';
 import ConstellationHero from './ConstellationHero';
@@ -10,10 +10,9 @@ interface RootPanelProps {
   colors: ThemeColors;
   onGoogle: () => void;
   onEmail: () => void;
-  onGuest: () => void;
 }
 
-export default function RootPanel({ colors, onGoogle, onEmail, onGuest }: RootPanelProps) {
+export default function RootPanel({ colors, onGoogle, onEmail }: RootPanelProps) {
   return (
     <>
       <ConstellationHero />
@@ -66,19 +65,6 @@ export default function RootPanel({ colors, onGoogle, onEmail, onGuest }: RootPa
             {' '}&amp;{' '}
             <Text style={[styles.legalLink, { color: colors.accent, textDecorationColor: colors.accentBorder }]}>Privacy</Text>.
           </Text>
-        </StaggeredItem>
-
-        {/* Continue as guest */}
-        <StaggeredItem index={8}>
-          <TouchableOpacity
-            onPress={onGuest}
-            style={styles.guestLink}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.guestText, { color: colors.text3 }]}>
-              Continue as guest
-            </Text>
-          </TouchableOpacity>
         </StaggeredItem>
       </View>
     </>
@@ -138,18 +124,6 @@ const styles = StyleSheet.create({
   },
   legalLink: {
     fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-  guestLink: {
-    alignSelf: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    minHeight: 44,
-    justifyContent: 'center',
-  },
-  guestText: {
-    fontSize: 13,
-    fontWeight: '500',
     textDecorationLine: 'underline',
   },
 });

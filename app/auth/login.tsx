@@ -16,26 +16,24 @@ import { useAuth } from '@/lib/auth';
 import { signUp as cognitoSignUp, signInWithRedirect } from 'aws-amplify/auth';
 import RootPanel from '@/components/auth/RootPanel';
 import EmailForm from '@/components/auth/EmailForm';
-import SentPanel from '@/components/auth/SentPanel';
 
-type Panel = 'root' | 'email' | 'sent';
+type Panel = 'root' | 'email';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const { colors } = useTheme();
-  const { signIn, signInWithMagicLink, signInAsDemo, session } = useAuth();
+  const { signIn, session } = useAuth();
   const router = useRouter();
 
   const [panel, setPanel] = useState<Panel>('root');
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [sentTarget, setSentTarget] = useState({ kind: '', target: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Auto-redirect when session appears (any method — Google, magic link, password)
+  // Auto-redirect when session appears (Google OAuth or email/password)
   // _layout.tsx auth gate handles the actual stack swap; this just resets to index
   useEffect(() => {
     if (session) {
@@ -73,21 +71,6 @@ export default function LoginScreen() {
     // Success: session useEffect handles redirect
   };
 
-  const handleSendMagicLink = async () => {
-    if (!isEmailValid) return;
-    setLoading(true);
-    setError(null);
-    const { error: err } = await signInWithMagicLink(email.trim());
-    if (err) {
-      setError(err);
-      setLoading(false);
-    } else {
-      setLoading(false);
-      setSentTarget({ kind: 'email', target: email.trim() });
-      setPanel('sent');
-    }
-  };
-
   const handleGoogle = async () => {
     try {
       setLoading(true);
@@ -123,7 +106,6 @@ export default function LoginScreen() {
               colors={colors}
               onGoogle={handleGoogle}
               onEmail={() => resetToPanel('email')}
-              onGuest={signInAsDemo}
             />
           )}
           {panel === 'email' && (
@@ -139,17 +121,7 @@ export default function LoginScreen() {
               onChangePassword={setPassword}
               onToggleSignUp={() => setIsSignUp(!isSignUp)}
               onAuthAction={handleAuthAction}
-              onSendMagicLink={handleSendMagicLink}
               onBack={() => resetToPanel('root')}
-            />
-          )}
-          {panel === 'sent' && (
-            <SentPanel
-              colors={colors}
-              target={sentTarget.target}
-              session={!!session}
-              onBack={() => resetToPanel('email')}
-              onContinue={() => { if (session) router.replace('/'); }}
             />
           )}
         </ScrollView>

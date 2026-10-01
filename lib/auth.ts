@@ -1,8 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import * as Linking from 'expo-linking';
 import { router as expoRouter } from 'expo-router';
 import { Amplify } from 'aws-amplify';
-import { signIn as amplifySignIn, signOut as amplifySignOut, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
+import {
+  signIn as amplifySignIn,
+  signOut as amplifySignOut,
+  getCurrentUser,
+  fetchAuthSession,
+} from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setCacheUserId } from './cache';
 import { CONFIG } from './config';
@@ -40,24 +46,10 @@ export interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signInWithMagicLink: (email: string) => Promise<{ error: string | null }>;
-  signInAsDemo: () => void;
   signOut: () => Promise<void>;
 }
 
-const DEMO_USER: User = {
-  id: 'demo-user-001',
-  email: 'demo@afterstay.travel',
-  name: 'Demo Traveler',
-};
-
-const DEMO_SESSION: Session = { accessToken: 'demo-token' };
-
-// Module-scoped flag so getAccessToken can report the demo token outside React state.
-let demoActive = false;
-
 export async function getAccessToken(): Promise<string | null> {
-  if (demoActive) return DEMO_SESSION.accessToken;
   try {
     const { tokens } = await fetchAuthSession();
     return tokens?.accessToken?.toString() ?? null;
@@ -85,8 +77,6 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   loading: true,
   signIn: async () => ({ error: null }),
-  signInWithMagicLink: async () => ({ error: null }),
-  signInAsDemo: () => {},
   signOut: async () => {},
 });
 
@@ -111,31 +101,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const u = await buildUser();
+      setUser(u);
+      setCacheUserId(u?.id);
+      if (u) {
+        const token = await getAccessToken();
+        setSession({ accessToken: token ?? '' });
+      } else {
+        setSession(null);
+      }
+    } catch {
+      setUser(null);
+      setSession(null);
+      setCacheUserId(undefined);
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
-
-    getCurrentUser()
-      .then(async () => {
-        const u = await buildUser();
-        if (cancelled) return;
-        setUser(u);
-        setCacheUserId(u?.id);
-        if (u) {
-          const token = await getAccessToken();
-          setSession({ accessToken: token ?? '' });
-        }
-      })
-      .catch(() => {
-        // Not signed in — stay on login screen
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
+    refreshUser().finally(() => {
+      if (!cancelled) setLoading(false);
+    });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshUser]);
+
+  // Re-check auth whenever Amplify completes a sign-in/sign-out — this is what
+  // makes the Google OAuth redirect actually land: signInWithRedirect exchanges
+  // the code and emits a `signedIn` Hub event after this provider has already
+  // mounted, so without this the session would stay null.
+  useEffect(() => {
+    const listener = Hub.listen('auth', ({ payload }) => {
+      if (payload.event === 'signedIn' || payload.event === 'signedOut') {
+        void refreshUser();
+      }
+    });
+    return () => listener();
+  }, [refreshUser]);
 
   // Handle deep link callbacks (invite)
   useEffect(() => {
@@ -166,34 +171,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       await amplifySignIn({ username: email, password });
-      const u = await buildUser();
-      setUser(u);
-      setCacheUserId(u?.id);
-      if (u) {
-        const token = await getAccessToken();
-        setSession({ accessToken: token ?? '' });
-      }
+      await refreshUser();
       return { error: null };
     } catch (e) {
       return { error: e instanceof Error ? e.message : 'Sign in failed' };
     }
-  };
-
-  const signInWithMagicLink = async (email: string) => {
-    try {
-      // Initiates the pool's email OTP challenge (SRP start).
-      await amplifySignIn({ username: email });
-      return { error: null };
-    } catch (e) {
-      return { error: e instanceof Error ? e.message : 'Sign in failed' };
-    }
-  };
-
-  const signInAsDemo = () => {
-    demoActive = true;
-    setUser(DEMO_USER);
-    setSession(DEMO_SESSION);
-    setCacheUserId(DEMO_USER.id);
   };
 
   const signOut = async () => {
@@ -202,7 +184,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Already signed out
     }
-    demoActive = false;
     setUser(null);
     setSession(null);
     setCacheUserId(undefined);
@@ -217,8 +198,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         loading,
         signIn,
-        signInWithMagicLink,
-        signInAsDemo,
         signOut,
       },
     },

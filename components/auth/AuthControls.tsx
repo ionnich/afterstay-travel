@@ -11,12 +11,10 @@ import Animated, {
   useAnimatedStyle,
   withDelay,
   withTiming,
-  withSpring,
   Easing,
 } from 'react-native-reanimated';
 import type { ThemeColors } from '@/constants/ThemeContext';
 import { radius } from '@/constants/theme';
-import { EmailIcon } from './AuthIcons';
 
 /* ─── Stagger animation helper ─── */
 
@@ -299,51 +297,5 @@ const inputStyles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     letterSpacing: -0.01 * 15,
-  },
-});
-
-/* ─── Success icon with pop animation ─── */
-
-export function SuccessIcon({
-  colors,
-}: {
-  colors: ThemeColors;
-}) {
-  const scale = useSharedValue(0.8);
-  const iconOpacity = useSharedValue(0);
-
-  useEffect(() => {
-    scale.value = withSpring(1, { damping: 8, stiffness: 180 });
-    iconOpacity.value = withTiming(1, { duration: 500, easing: Easing.out(Easing.ease) });
-  }, [scale, iconOpacity]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: iconOpacity.value,
-  }));
-
-  return (
-    <Animated.View style={animatedStyle}>
-      <View style={[
-        successStyles.circle,
-        {
-          backgroundColor: colors.accentBg,
-          borderColor: colors.accentBorder,
-          borderWidth: 1,
-        },
-      ]}>
-        <EmailIcon />
-      </View>
-    </Animated.View>
-  );
-}
-
-const successStyles = StyleSheet.create({
-  circle: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

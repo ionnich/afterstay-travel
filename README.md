@@ -170,11 +170,9 @@ plugins/        withPackagingFix.ts (build-time plugin)
 - `signOut()` — clears the session and trip-scoped cache.
 
 The client JWT is attached to every `lib/api.ts` request via `getAccessToken()`.
-
-> ⚠️ **Known gap:** the "guest" and "magic link" entry points are client stubs —
-> the Cognito pool currently only enables `ALLOW_USER_PASSWORD_AUTH` + Google
-> OAuth, so guest mode has no data and magic-link has no backend flow. Use
-> Google or email/password.
+The Cognito pool enables `ALLOW_USER_PASSWORD_AUTH` + Google OAuth, so the app
+offers exactly two sign-in paths: **Google OAuth** and **email/password** (sign
+up + sign in).
 
 ## Testing
 
