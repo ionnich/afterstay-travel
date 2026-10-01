@@ -1,11 +1,5 @@
 export default ({ config }) => ({
   ...config,
-  ios: {
-    ...config.ios,
-    config: {
-      googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY ?? '',
-    },
-  },
   android: {
     ...config.android,
     config: {
