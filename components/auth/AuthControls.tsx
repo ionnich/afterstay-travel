@@ -14,7 +14,6 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import type { ThemeColors } from '@/constants/ThemeContext';
-import { radius } from '@/constants/theme';
 
 /* ─── Stagger animation helper ─── */
 
