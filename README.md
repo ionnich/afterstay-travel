@@ -188,7 +188,16 @@ npx ts-prune        # unused exports
 
 ## Release process
 
-Build a distributable Android APK (signed with the debug key — testing only):
+**Releases are automatic.** Every push to `main` runs
+`.github/workflows/release.yml`, which builds an arm64 release APK and attaches
+it to a new GitHub release (`v<version>-<run_number>`). The stable download
+link is always:
+
+```
+https://github.com/ionnich/afterstay-travel/releases/latest/download/AfterStay.apk
+```
+
+To build the APK locally (e.g. to test on a device/emulator):
 
 ```bash
 set -a; source .env; set +a      # bake EXPO_PUBLIC_* into the bundle
@@ -196,14 +205,8 @@ cd android && ./gradlew assembleRelease
 # → android/app/build/outputs/apk/release/app-release.apk
 ```
 
-Publish to GitHub Releases:
-
-```bash
-gh release create v1.2.0 app-release.apk#AfterStay.apk --title "v1.2.0" --generate-notes
-```
-
-The stable download link is
-`https://github.com/ionnich/afterstay-travel/releases/latest/download/AfterStay.apk`.
+The APK is signed with the debug key (testing only). CI reads the
+`EXPO_PUBLIC_*` values from GitHub Actions **secrets** on the repo.
 
 ## Troubleshooting
 
