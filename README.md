@@ -17,7 +17,9 @@ the companion repo
 
 <div align="center">
 
-**[⬇ Download AfterStay.apk](https://github.com/ionnich/afterstay-travel/releases/latest/download/AfterStay.apk)**
+**[⬇ Download AfterStay.apk (S3, fast)](https://afterstay-releases.s3.ap-southeast-1.amazonaws.com/AfterStay.apk)**
+
+*Slow mirror: [GitHub Releases](https://github.com/ionnich/afterstay-travel/releases/latest/download/AfterStay.apk)*
 
 </div>
 
@@ -187,12 +189,13 @@ npx ts-prune        # unused exports
 ## Release process
 
 **Releases are automatic.** Every push to `main` runs
-`.github/workflows/release.yml`, which builds an arm64 release APK and attaches
-it to a new GitHub release (`v<version>-<run_number>`). The stable download
-link is always:
+`.github/workflows/release.yml`, which builds an arm64 release APK, attaches it
+to a new GitHub release (`v<version>-<run_number>`), and mirrors it to S3. The
+stable download links are always:
 
 ```
-https://github.com/ionnich/afterstay-travel/releases/latest/download/AfterStay.apk
+https://afterstay-releases.s3.ap-southeast-1.amazonaws.com/AfterStay.apk             (fast)
+https://github.com/ionnich/afterstay-travel/releases/latest/download/AfterStay.apk   (mirror)
 ```
 
 To build the APK locally (e.g. to test on a device/emulator):
