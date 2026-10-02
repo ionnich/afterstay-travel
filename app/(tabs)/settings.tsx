@@ -20,8 +20,8 @@ import * as Updates from 'expo-updates';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Camera, User, Plane, Bell, Info, ChevronRight, ArrowLeft, Sun, Moon, Palette, LogOut } from 'lucide-react-native';
-import { spacing, radius } from '@/constants/theme';
-import { useTheme } from '@/constants/ThemeContext';
+import { spacing, radius, THEMES, type ThemeId } from '@/constants/theme';
+import { useTheme, type ThemeColors } from '@/constants/ThemeContext';
 import { useAuth } from '@/lib/auth';
 import { getActiveTrip, getProfile, updateProfile } from '@/lib/api';
 import type { Trip } from '@/lib/types';
@@ -49,7 +49,7 @@ const DEFAULT_NOTIFICATIONS: Notifications = {
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { mode, colors, toggle: toggleTheme } = useTheme();
+  const { mode, themeId, colors, setTheme, toggle: toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [notifications, setNotifications] = useState<Notifications>(DEFAULT_NOTIFICATIONS);
@@ -221,6 +221,32 @@ export default function SettingsScreen() {
               thumbColor={colors.white}
             />
           </View>
+
+          <View style={[styles.themeDivider, { backgroundColor: colors.border }]} />
+          <Text style={dynamicStyles.toggleLabel}>Accent</Text>
+          <View style={styles.themeSwatches}>
+            {THEMES.map((t) => (
+              <TouchableOpacity
+                key={t.id}
+                onPress={() => setTheme(t.id as ThemeId)}
+                style={styles.swatchWrap}
+                accessibilityRole="button"
+                accessibilityLabel={`${t.label} theme`}
+                accessibilityState={{ selected: themeId === t.id }}
+              >
+                <View
+                  style={[
+                    styles.swatch,
+                    { backgroundColor: t.dark.accent },
+                    themeId === t.id && { borderColor: colors.text, borderWidth: 2.5 },
+                  ]}
+                />
+                <Text style={[styles.swatchLabel, { color: themeId === t.id ? colors.text : colors.text3 }]}>
+                  {t.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         {/* Notifications */}
@@ -324,7 +350,7 @@ function SectionLabel({ icon, label, textColor }: { icon: React.ReactNode; label
 
 /* ---------- Styles ---------- */
 
-const getDynamicStyles = (c: Record<string, string>) =>
+const getDynamicStyles = (c: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: c.bg },
     headerTitle: { fontSize: 18, fontWeight: '700', color: c.text },
@@ -360,6 +386,11 @@ const styles = StyleSheet.create({
   avatarPicker: { alignSelf: 'center', marginBottom: spacing.sm },
   cameraOverlay: { position: 'absolute', bottom: 0, right: 0, width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   toggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  themeDivider: { height: 1, marginVertical: spacing.md },
+  themeSwatches: { flexDirection: 'row', alignItems: 'flex-start' },
+  swatchWrap: { flex: 1, alignItems: 'center', gap: 6 },
+  swatch: { width: 34, height: 34, borderRadius: radius.pill, borderWidth: 1, borderColor: 'transparent' },
+  swatchLabel: { fontSize: 11, fontWeight: '500' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center' },
   modalActions: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: spacing.xl, gap: spacing.sm },
   modalBtn: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: radius.sm },
