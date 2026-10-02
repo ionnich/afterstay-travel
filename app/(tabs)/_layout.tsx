@@ -1,8 +1,9 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
 import { Camera, Compass, Home, Plane, Wallet } from 'lucide-react-native';
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Platform, Pressable, Text, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/constants/ThemeContext';
@@ -44,14 +45,31 @@ function TabBarOverlay({ state, descriptors, navigation, insets }: BottomTabBarP
   const { visible } = useTabBarVisibility();
   const bottomOffset = Platform.OS === 'ios' ? Math.max(insets.bottom, 20) : 16;
 
-  if (!visible) return null;
-
   const visibleRoutes = state.routes.filter(
     (route) => (descriptors[route.key]?.options as Record<string, unknown>)?.href !== null
   );
+  const tabCount = visibleRoutes.length;
+
+  const [containerWidth, setContainerWidth] = useState(0);
+  const activeIndex = useSharedValue(state.index);
+
+  useEffect(() => {
+    activeIndex.value = withSpring(state.index, { damping: 20, stiffness: 250 });
+  }, [state.index, activeIndex]);
+
+  const innerWidth = Math.max(0, containerWidth - 8 - 2 * (tabCount - 1));
+  const tabWidth = tabCount > 0 ? innerWidth / tabCount : 0;
+  const step = tabWidth + 2;
+  const pillStyle = useAnimatedStyle(
+    () => ({ transform: [{ translateX: activeIndex.value * step }] }),
+    [step],
+  );
+
+  if (!visible) return null;
 
   const tabBar = (
     <View
+      onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
       style={{
         position: 'absolute',
         bottom: bottomOffset,
@@ -77,6 +95,22 @@ function TabBarOverlay({ state, descriptors, navigation, insets }: BottomTabBarP
         }),
       }}
     >
+      {tabWidth > 0 && (
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+              top: 6,
+              bottom: 6,
+              left: 4,
+              width: tabWidth,
+              borderRadius: 22,
+              backgroundColor: colors.accentBg,
+            },
+            pillStyle,
+          ]}
+        />
+      )}
       {visibleRoutes.map((route) => {
         const originalIndex = state.routes.indexOf(route);
         const focused = state.index === originalIndex;
@@ -132,17 +166,6 @@ function TabBarOverlay({ state, descriptors, navigation, insets }: BottomTabBarP
             >
               {TAB_LABELS[route.name] ?? route.name}
             </Text>
-            {focused && (
-              <View
-                style={{
-                  width: 4,
-                  height: 4,
-                  borderRadius: 2,
-                  backgroundColor: colors.accent,
-                  marginTop: 3,
-                }}
-              />
-            )}
           </Pressable>
         );
       })}
