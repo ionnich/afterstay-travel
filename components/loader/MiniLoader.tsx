@@ -9,6 +9,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  ReduceMotion,
 } from 'react-native-reanimated';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 import { useTheme } from '@/constants/ThemeContext';
@@ -36,13 +37,15 @@ export default function MiniLoader({ message, size = 48 }: MiniLoaderProps) {
   useEffect(() => {
     needleRotation.value = withRepeat(
       withSequence(
-        withTiming(50, { duration: 500, easing: Easing.bezier(0.3, 0.6, 0.3, 1) }),
-        withTiming(20, { duration: 400, easing: Easing.bezier(0.3, 0.6, 0.3, 1) }),
-        withTiming(35, { duration: 350, easing: Easing.bezier(0.3, 0.6, 0.3, 1) }),
-        withTiming(-30, { duration: 350, easing: Easing.bezier(0.3, 0.6, 0.3, 1) }),
+        withTiming(50, { duration: 500, easing: Easing.bezier(0.3, 0.6, 0.3, 1), reduceMotion: ReduceMotion.System }),
+        withTiming(20, { duration: 400, easing: Easing.bezier(0.3, 0.6, 0.3, 1), reduceMotion: ReduceMotion.System }),
+        withTiming(35, { duration: 350, easing: Easing.bezier(0.3, 0.6, 0.3, 1), reduceMotion: ReduceMotion.System }),
+        withTiming(-30, { duration: 350, easing: Easing.bezier(0.3, 0.6, 0.3, 1), reduceMotion: ReduceMotion.System }),
       ),
       -1,
       false,
+      undefined,
+      ReduceMotion.System,
     );
   }, [needleRotation]);
 
@@ -55,11 +58,13 @@ export default function MiniLoader({ message, size = 48 }: MiniLoaderProps) {
   useEffect(() => {
     pulseR.value = withRepeat(
       withSequence(
-        withTiming(size * 0.06, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        withTiming(size * 0.04, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+        withTiming(size * 0.06, { duration: 800, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(size * 0.04, { duration: 800, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       ),
       -1,
       true,
+      undefined,
+      ReduceMotion.System,
     );
   }, [pulseR, size]);
 

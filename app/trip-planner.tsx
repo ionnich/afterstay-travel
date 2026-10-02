@@ -4,6 +4,7 @@ import { Calendar, Sparkles } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  FlatList,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -184,12 +185,19 @@ export default function TripPlannerModal() {
   // ── Results: Itinerary ─────────────────────────────────
   if (step === 'results' && tab === 'itinerary') {
     return (
-      <ScrollView style={styles.safe} contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Your Itinerary</Text>
-        <Text style={styles.sub}>{itineraryPace} pace — {itinerary.length} days</Text>
-
-        {itinerary.map((day) => (
-          <View key={day.day} style={styles.dayCard}>
+      <FlatList
+        style={styles.safe}
+        contentContainerStyle={styles.content}
+        data={itinerary}
+        keyExtractor={(day) => String(day.day)}
+        ListHeaderComponent={
+          <View style={{ gap: spacing.lg }}>
+            <Text style={styles.title}>Your Itinerary</Text>
+            <Text style={styles.sub}>{itineraryPace} pace — {itinerary.length} days</Text>
+          </View>
+        }
+        renderItem={({ item: day }) => (
+          <View style={styles.dayCard}>
             <View style={styles.dayHeader}>
               <Calendar size={14} color={colors.green2} />
               <Text style={styles.dayTitle}>Day {day.day}</Text>
@@ -232,15 +240,18 @@ export default function TripPlannerModal() {
               </>
             )}
           </View>
-        ))}
-
-        <Pressable onPress={() => setStep('questions')} style={styles.againBtn}>
-          <Text style={styles.againText}>Start over</Text>
-        </Pressable>
-        <Pressable onPress={() => router.back()} style={styles.doneBtn}>
-          <Text style={styles.doneText}>Done</Text>
-        </Pressable>
-      </ScrollView>
+        )}
+        ListFooterComponent={
+          <View style={{ gap: spacing.lg }}>
+            <Pressable onPress={() => setStep('questions')} style={styles.againBtn}>
+              <Text style={styles.againText}>Start over</Text>
+            </Pressable>
+            <Pressable onPress={() => router.back()} style={styles.doneBtn}>
+              <Text style={styles.doneText}>Done</Text>
+            </Pressable>
+          </View>
+        }
+      />
     );
   }
 

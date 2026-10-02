@@ -122,9 +122,9 @@ function getAdvisories(today: DayForecast, current: CurrentWeather | null, color
   // Perfect weather
   if (tips.length === 0 && today.maxTemp >= 25 && today.maxTemp <= 32 && today.chanceRain < 20) {
     tips.push({
-      icon: <Sun size={14} color="#fbbf24" strokeWidth={2} />,
+      icon: <Sun size={14} color={colors.gold} strokeWidth={2} />,
       text: 'Perfect weather today — great day to explore!',
-      color: '#fbbf24',
+      color: colors.gold,
     });
   }
 

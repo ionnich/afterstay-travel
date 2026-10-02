@@ -6,6 +6,7 @@ import Animated, {
   withRepeat,
   withSequence,
   Easing,
+  ReduceMotion,
 } from 'react-native-reanimated';
 import Svg, {
   Rect,
@@ -50,19 +51,23 @@ export default function SunriseScene() {
 
     // spinSlow: 30s linear infinite
     rayRotation.value = withRepeat(
-      withTiming(360, { duration: 30000, easing: Easing.linear }),
+      withTiming(360, { duration: 30000, easing: Easing.linear, reduceMotion: ReduceMotion.System }),
       -1,
       false,
+      undefined,
+      ReduceMotion.System,
     );
 
     // cloudDrift: 8s ease-in-out infinite alternate, from -20 to 20
     cloudDriftX.value = withRepeat(
       withSequence(
-        withTiming(20, { duration: 8000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(-20, { duration: 8000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(20, { duration: 8000, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(-20, { duration: 8000, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       ),
       -1,
       false,
+      undefined,
+      ReduceMotion.System,
     );
   }, [sunTY, sunOpacity, rayRotation, cloudDriftX]);
 

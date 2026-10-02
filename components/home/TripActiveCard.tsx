@@ -8,6 +8,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  ReduceMotion,
 } from 'react-native-reanimated';
 import { useTheme } from '@/constants/ThemeContext';
 import { elevation } from '@/constants/theme';
@@ -50,11 +51,13 @@ function DailySpendBar({
     if (isClose) {
       pulseScale.value = withRepeat(
         withSequence(
-          withTiming(1.15, { duration: 600, easing: Easing.inOut(Easing.ease) }),
-          withTiming(1, { duration: 600, easing: Easing.inOut(Easing.ease) }),
+          withTiming(1.15, { duration: 600, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+          withTiming(1, { duration: 600, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
         ),
         -1,
         true,
+        undefined,
+        ReduceMotion.System,
       );
     } else {
       pulseScale.value = withTiming(1, { duration: 200 });
@@ -162,17 +165,23 @@ export function TripActiveCard({
   useEffect(() => {
     dotScale.value = withRepeat(
       withSequence(
-        withTiming(1.8, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1.8, { duration: 800, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       ),
       -1,
+      undefined,
+      undefined,
+      ReduceMotion.System,
     );
     dotOpacity.value = withRepeat(
       withSequence(
-        withTiming(0.5, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.5, { duration: 800, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       ),
       -1,
+      undefined,
+      undefined,
+      ReduceMotion.System,
     );
   }, [dotScale, dotOpacity]);
 

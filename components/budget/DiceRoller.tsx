@@ -7,6 +7,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  ReduceMotion,
 } from 'react-native-reanimated';
 
 import { useTheme } from '@/constants/ThemeContext';
@@ -61,21 +62,27 @@ const DiceRoller = forwardRef<DiceRollerRef, DiceRollerProps>(
       // rotate 0 → 90 → 180 → 270 → 360, scale 1 → 0.95 → 1.02 → 0.95 → 1
       rotation.value = withRepeat(
         withSequence(
-          withTiming(90, { duration: 30, easing: Easing.linear }),
-          withTiming(180, { duration: 30, easing: Easing.linear }),
-          withTiming(270, { duration: 30, easing: Easing.linear }),
-          withTiming(360, { duration: 30, easing: Easing.linear }),
+          withTiming(90, { duration: 30, easing: Easing.linear, reduceMotion: ReduceMotion.System }),
+          withTiming(180, { duration: 30, easing: Easing.linear, reduceMotion: ReduceMotion.System }),
+          withTiming(270, { duration: 30, easing: Easing.linear, reduceMotion: ReduceMotion.System }),
+          withTiming(360, { duration: 30, easing: Easing.linear, reduceMotion: ReduceMotion.System }),
         ),
         -1,
+        undefined,
+        undefined,
+        ReduceMotion.System,
       );
       scale.value = withRepeat(
         withSequence(
-          withTiming(0.95, { duration: 30, easing: Easing.linear }),
-          withTiming(1.02, { duration: 30, easing: Easing.linear }),
-          withTiming(0.95, { duration: 30, easing: Easing.linear }),
-          withTiming(1, { duration: 30, easing: Easing.linear }),
+          withTiming(0.95, { duration: 30, easing: Easing.linear, reduceMotion: ReduceMotion.System }),
+          withTiming(1.02, { duration: 30, easing: Easing.linear, reduceMotion: ReduceMotion.System }),
+          withTiming(0.95, { duration: 30, easing: Easing.linear, reduceMotion: ReduceMotion.System }),
+          withTiming(1, { duration: 30, easing: Easing.linear, reduceMotion: ReduceMotion.System }),
         ),
         -1,
+        undefined,
+        undefined,
+        ReduceMotion.System,
       );
 
       intervalRef.current = setInterval(() => {

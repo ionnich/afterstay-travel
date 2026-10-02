@@ -19,6 +19,7 @@ import Animated, {
   withDelay,
   withSpring,
   Easing,
+  ReduceMotion,
 } from 'react-native-reanimated';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -82,11 +83,13 @@ function TwinklingStar({ star, index }: { star: StarData; index: number }) {
       delay,
       withRepeat(
         withSequence(
-          withTiming(0.9, { duration: duration / 2, easing: Easing.inOut(Easing.ease) }),
-          withTiming(star.o, { duration: duration / 2, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0.9, { duration: duration / 2, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+          withTiming(star.o, { duration: duration / 2, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
         ),
         -1,
         true,
+        undefined,
+        ReduceMotion.System,
       ),
     );
   }, [index, opacity, star.o, star.d, star.td]);
@@ -193,9 +196,11 @@ function PlaneOnArc() {
 
   useEffect(() => {
     progress.value = withRepeat(
-      withTiming(1, { duration: 9000, easing: Easing.linear }),
+      withTiming(1, { duration: 9000, easing: Easing.linear, reduceMotion: ReduceMotion.System }),
       -1,
       false,
+      undefined,
+      ReduceMotion.System,
     );
   }, [progress]);
 
@@ -266,19 +271,23 @@ function DotPulse() {
   useEffect(() => {
     scale.value = withRepeat(
       withSequence(
-        withTiming(1.6, { duration: 1100, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1.6, { duration: 1100, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       ),
       -1,
       true,
+      undefined,
+      ReduceMotion.System,
     );
     dotOpacity.value = withRepeat(
       withSequence(
-        withTiming(0.6, { duration: 1100, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.6, { duration: 1100, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       ),
       -1,
       true,
+      undefined,
+      ReduceMotion.System,
     );
   }, [scale, dotOpacity]);
 

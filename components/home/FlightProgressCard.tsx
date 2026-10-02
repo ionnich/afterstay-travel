@@ -9,6 +9,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  ReduceMotion,
 } from 'react-native-reanimated';
 import Svg, {
   Circle,
@@ -139,17 +140,23 @@ export function FlightProgressCard({
   useEffect(() => {
     pulseScale.value = withRepeat(
       withSequence(
-        withTiming(1.8, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1.8, { duration: 800, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       ),
       -1,
+      undefined,
+      undefined,
+      ReduceMotion.System,
     );
     pulseOpacity.value = withRepeat(
       withSequence(
-        withTiming(0.5, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.5, { duration: 800, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       ),
       -1,
+      undefined,
+      undefined,
+      ReduceMotion.System,
     );
   }, [pulseScale, pulseOpacity]);
 
@@ -157,17 +164,23 @@ export function FlightProgressCard({
   useEffect(() => {
     ringRadius.value = withRepeat(
       withSequence(
-        withTiming(14, { duration: 2000, easing: Easing.out(Easing.ease) }),
-        withTiming(7, { duration: 0 }),
+        withTiming(14, { duration: 2000, easing: Easing.out(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(7, { duration: 0, reduceMotion: ReduceMotion.System }),
       ),
       -1,
+      undefined,
+      undefined,
+      ReduceMotion.System,
     );
     ringOpacity.value = withRepeat(
       withSequence(
-        withTiming(0, { duration: 2000, easing: Easing.out(Easing.ease) }),
-        withTiming(0.5, { duration: 0 }),
+        withTiming(0, { duration: 2000, easing: Easing.out(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(0.5, { duration: 0, reduceMotion: ReduceMotion.System }),
       ),
       -1,
+      undefined,
+      undefined,
+      ReduceMotion.System,
     );
   }, [ringRadius, ringOpacity]);
 

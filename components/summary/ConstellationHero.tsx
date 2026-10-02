@@ -17,6 +17,7 @@ import Animated, {
   withDelay,
   withRepeat,
   Easing,
+  ReduceMotion,
 } from 'react-native-reanimated';
 
 import { useTheme } from '@/constants/ThemeContext';
@@ -122,17 +123,21 @@ function DestinationStar({
       pulseR.value = withDelay(
         500 + index * 100,
         withRepeat(
-          withTiming(10, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+          withTiming(10, { duration: 2000, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
           -1,
           true,
+          undefined,
+          ReduceMotion.System,
         ),
       );
       pulseOpacity.value = withDelay(
         500 + index * 100,
         withRepeat(
-          withTiming(0.1, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0.1, { duration: 2000, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
           -1,
           true,
+          undefined,
+          ReduceMotion.System,
         ),
       );
     }

@@ -9,6 +9,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  ReduceMotion,
 } from 'react-native-reanimated';
 
 import { useTheme } from '@/constants/ThemeContext';
@@ -143,11 +144,13 @@ function CruisingIconAnimated({ color }: { color: string }) {
   useEffect(() => {
     translateY.value = withRepeat(
       withSequence(
-        withTiming(-2, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(-2, { duration: 1500, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(0, { duration: 1500, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       ),
       -1,
       true,
+      undefined,
+      ReduceMotion.System,
     );
   }, [translateY]);
 
@@ -170,15 +173,18 @@ function LowIconAnimated({ color }: { color: string }) {
   useEffect(() => {
     rotation.value = withRepeat(
       withSequence(
-        withTiming(0, { duration: 0 }),
-        withTiming(-14, { duration: 200, easing: Easing.inOut(Easing.ease) }),
-        withTiming(14, { duration: 200, easing: Easing.inOut(Easing.ease) }),
-        withTiming(-14, { duration: 200, easing: Easing.inOut(Easing.ease) }),
-        withTiming(14, { duration: 200, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 200, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 1000 }),
+        withTiming(0, { duration: 0, reduceMotion: ReduceMotion.System }),
+        withTiming(-14, { duration: 200, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(14, { duration: 200, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(-14, { duration: 200, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(14, { duration: 200, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(0, { duration: 200, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(0, { duration: 1000, reduceMotion: ReduceMotion.System }),
       ),
       -1,
+      undefined,
+      undefined,
+      ReduceMotion.System,
     );
   }, [rotation]);
 
@@ -200,10 +206,13 @@ function OverIconAnimated({ color }: { color: string }) {
   useEffect(() => {
     scale.value = withRepeat(
       withSequence(
-        withTiming(1.08, { duration: 500, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1.08, { duration: 500, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
+        withTiming(1, { duration: 500, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       ),
       -1,
+      undefined,
+      undefined,
+      ReduceMotion.System,
     );
   }, [scale]);
 
@@ -226,8 +235,11 @@ function ShimmerOverlay() {
   useEffect(() => {
     // shimmer: 4s ease-in-out infinite, background-position sweep
     translateX.value = withRepeat(
-      withTiming(400, { duration: 4000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(400, { duration: 4000, easing: Easing.inOut(Easing.ease), reduceMotion: ReduceMotion.System }),
       -1,
+      undefined,
+      undefined,
+      ReduceMotion.System,
     );
   }, [translateX]);
 

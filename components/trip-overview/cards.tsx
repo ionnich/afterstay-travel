@@ -1,8 +1,7 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Animated,
   Pressable,
   StyleSheet,
   Text,
@@ -10,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { ChevronDown, Copy } from 'lucide-react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import * as Clipboard from 'expo-clipboard';
 import { useTheme, ThemeColors } from '@/constants/ThemeContext';
 import { elevation, radius, spacing } from '@/constants/theme';
@@ -29,28 +29,23 @@ export function CollapsibleCard({
   const { colors } = useTheme();
   const styles = useMemo(() => getCardStyles(colors), [colors]);
   const [open, setOpen] = useState(defaultOpen);
-  const rotation = useRef(new Animated.Value(defaultOpen ? 1 : 0)).current;
+  const rotation = useSharedValue(defaultOpen ? 1 : 0);
 
   const toggle = () => {
-    Animated.timing(rotation, {
-      toValue: open ? 0 : 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
+    rotation.value = withTiming(open ? 0 : 1, { duration: 200 });
     setOpen(!open);
   };
 
-  const rotate = rotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value * 180}deg` }],
+  }));
 
   return (
     <View style={styles.card}>
       <Pressable onPress={toggle} style={styles.cardHeader} accessibilityLabel={`${open ? 'Collapse' : 'Expand'} ${title}`} accessibilityRole="button">
         {icon}
         <Text style={[styles.cardTitle, { flex: 1 }]}>{title}</Text>
-        <Animated.View style={{ transform: [{ rotate }] }}>
+        <Animated.View style={animatedStyle}>
           <ChevronDown size={16} color={colors.text2} />
         </Animated.View>
       </Pressable>
