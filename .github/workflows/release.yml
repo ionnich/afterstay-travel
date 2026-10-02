@@ -8,6 +8,12 @@ on:
 permissions:
   contents: write
 
+# One release build at a time — cancel a queued/stale run on a new push so
+# release tags stay ordered and don't race each other.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
